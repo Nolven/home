@@ -14,35 +14,35 @@ Zone zone[50];
 
 void setup() {
     delay(3000); // initial delay of a few seconds is recommended
-    FastLED.addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); // initializes LED strip
+    CFastLED::addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); // initializes LED strip
 
     zone[0].start = 10;
     zone[0].end = 20;
+    zone[0].mode = Mode::RND;
 
 }
 
 // main program
 void loop()
 {
-    zone[0].show();
+    zone[0].update();
     FastLED.show();
 
-
-    int x = 5;
+    int x = 20;
     while (--x)
     {
-        zone[0].changeEnd(5);
-        zone[0].show();
+        zone[0].shift(1);
+        zone[0].update();
         FastLED.show();
-        delay(1500);
+        delay(150);
     }
 
-    while (++x < 5)
+    while (++x < 20)
     {
-        zone[0].changeEnd(-5);
-        zone[0].show();
+        zone[0].shift(-1);
+        zone[0].update();
         FastLED.show();
-        delay(1500);
+        delay(150);
     }
 
     /*for (int i = 0; i < NUM_LEDS - 1; ++i)
