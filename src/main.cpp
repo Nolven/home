@@ -26,9 +26,21 @@ void setup() {
 // main program
 void loop()
 {
-    zone[0].update();
-    FastLED.show();
-    delay(150);
+    //Color
+    zone[0].colorMode = COL;
+    zone[0].mode = FLAT;
+
+    int i = 100;
+    while ( i-- )
+    {
+        zone[0].update();
+        FastLED.show();
+        --zone[0].brightness;
+        delay(100);
+    }
+
+
+
 
     /*int x = 20;
     while (--x)

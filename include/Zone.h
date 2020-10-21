@@ -13,7 +13,8 @@ enum ColorMode
 {
     RND,
     COL,
-    GRAD
+    GRAD,
+    MUSIC
 };
 
 struct Zone {
@@ -23,15 +24,19 @@ struct Zone {
         for (; s < e; ++s) {
             switch (colorMode) {
                 case RND:
-                    FastLED.leds()[s] = CHSV(random(), 255, 255);
+                    FastLED.leds()[s] = CHSV(random(), 255, brightness);
                     break;
 
                 case COL:
-                    FastLED.leds()[s] = color;
+                {
+                    double b = double(brightness) / 255;
+                    FastLED.leds()[s] = CRGB(color.r*b, color.g*b, color.b*b);
                     break;
-
+                }
                 case GRAD:
                     //TODO
+                    break;
+                case MUSIC:
                     break;
             }
         }
@@ -94,7 +99,6 @@ struct Zone {
         sEnd += direction;
     }
 
-
     void update()
     {
         if (start == end)
@@ -145,16 +149,18 @@ struct Zone {
     unsigned start = 0; // smaller
     unsigned end = 0; // greater
 
+
     //Snake
     bool loop = true;
     int direction = 1; // and also speed
     unsigned sStart{};
     unsigned sEnd{};
 
-    CRGB color = CRGB::DarkGray;
+    CRGB color = CRGB::LavenderBlush;
+    byte brightness = 255;
 
     ColorMode colorMode = ColorMode::COL;
-    Mode mode = Mode::SNAKE;
+    Mode mode = Mode::FLAT;
 };
 
 #endif
