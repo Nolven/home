@@ -16,10 +16,11 @@ void setup() {
     delay(3000); // initial delay of a few seconds is recommended
     CFastLED::addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); // initializes LED strip
 
+    zone[0].sStart = 12;
+    zone[0].sEnd = 18;
+
     zone[0].start = 10;
     zone[0].end = 20;
-    zone[0].mode = Mode::RND;
-
 }
 
 // main program
@@ -27,8 +28,9 @@ void loop()
 {
     zone[0].update();
     FastLED.show();
+    delay(150);
 
-    int x = 20;
+    /*int x = 20;
     while (--x)
     {
         zone[0].shift(1);
@@ -43,7 +45,7 @@ void loop()
         zone[0].update();
         FastLED.show();
         delay(150);
-    }
+    }*/
 
     /*for (int i = 0; i < NUM_LEDS - 1; ++i)
     {
