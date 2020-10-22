@@ -2,11 +2,10 @@
 #define HOMELIGHTS_ZONE_H
 
 #include <FastLED.h>
-#include "gradient.h"
 
 enum Mode
 {
-    FLAT,
+    STATIC,
     SNAKE,
 };
 
@@ -38,10 +37,13 @@ struct Zone {
                 }
                 case GRAD:
                 {
-                    FastLED.leds()[s] = ColorMix(pc, pc1, double(s-e)/steps);
+                    static int index = 0;
+                    FastLED.leds()[s] = ColorFromPalette(palette, index, brightness,  blending);
+                    index += 3;
                     break;
                 }
                 case MUSIC:
+                    //TODO implement
                     break;
             }
         }
@@ -83,12 +85,11 @@ struct Zone {
                 sEnd = end;
         }
 
-
         sEnd += direction;
         sStart += direction;
     }
 
-    void nonLoopSnake()
+    void bouncySnake()
     {
         paintItBlack(start, sStart); //TODO optimization required
         paintItBlack(sEnd, end);
@@ -111,7 +112,7 @@ struct Zone {
 
         switch (mode)
         {
-            case FLAT:
+            case STATIC:
                 paint(start, end);
                 break;
 
@@ -119,7 +120,7 @@ struct Zone {
                 if (loop)
                     loopSnake();
                 else
-                    nonLoopSnake();
+                    bouncySnake();
                 break;
         }
     }
@@ -160,16 +161,18 @@ struct Zone {
     unsigned sStart{};
     unsigned sEnd{};
 
+    //Color
     CRGB color = CRGB::LavenderBlush;
     byte brightness = 255;
 
-    CRGBPalette16 palette;
-    CRGB pc = CRGB::Red;
-    CRGB pc1 = CRGB::Blue;
+    //Gradient
+    CRGBPalette16 palette = RainbowColors_p;
+    TBlendType blending = LINEARBLEND;
 
 
+    //Modes
     ColorMode colorMode = ColorMode::GRAD;
-    Mode mode = Mode::FLAT;
+    Mode mode = Mode::STATIC;
 };
 
 #endif
