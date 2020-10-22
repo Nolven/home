@@ -2,6 +2,7 @@
 #define HOMELIGHTS_ZONE_H
 
 #include <FastLED.h>
+#include "gradient.h"
 
 enum Mode
 {
@@ -20,7 +21,9 @@ enum ColorMode
 struct Zone {
     Zone() = default;
 
-    void paint(unsigned s, unsigned e) const {
+    void paint(unsigned s, unsigned e) const
+    {
+        double steps = e - s;
         for (; s < e; ++s) {
             switch (colorMode) {
                 case RND:
@@ -34,8 +37,10 @@ struct Zone {
                     break;
                 }
                 case GRAD:
-                    //TODO
+                {
+                    FastLED.leds()[s] = ColorMix(pc, pc1, double(s-e)/steps);
                     break;
+                }
                 case MUSIC:
                     break;
             }
@@ -149,7 +154,6 @@ struct Zone {
     unsigned start = 0; // smaller
     unsigned end = 0; // greater
 
-
     //Snake
     bool loop = true;
     int direction = 1; // and also speed
@@ -159,7 +163,12 @@ struct Zone {
     CRGB color = CRGB::LavenderBlush;
     byte brightness = 255;
 
-    ColorMode colorMode = ColorMode::COL;
+    CRGBPalette16 palette;
+    CRGB pc = CRGB::Red;
+    CRGB pc1 = CRGB::Blue;
+
+
+    ColorMode colorMode = ColorMode::GRAD;
     Mode mode = Mode::FLAT;
 };
 

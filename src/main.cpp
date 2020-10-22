@@ -9,7 +9,7 @@
 #define BRIGHTNESS 96
 
 CRGB leds[NUM_LEDS];
-Zone zone[50];
+Zone zone[10];
 
 
 void setup() {
@@ -27,7 +27,7 @@ void setup() {
 void loop()
 {
     //Color
-    zone[0].colorMode = COL;
+   /* zone[0].colorMode = COL;
     zone[0].mode = FLAT;
 
     int i = 100;
@@ -37,7 +37,10 @@ void loop()
         FastLED.show();
         --zone[0].brightness;
         delay(100);
-    }
+    }*/
+
+    zone[0].update();
+    FastLED.show();
 
 
 
