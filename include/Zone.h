@@ -110,6 +110,11 @@ struct Zone {
         if (start == end)
             return;
 
+        if( counter++ < delay )
+            return;
+        else
+            counter = 0;
+
         switch (mode)
         {
             case STATIC:
@@ -155,11 +160,14 @@ struct Zone {
     unsigned start = 0; // smaller
     unsigned end = 0; // greater
 
+    unsigned delay = 0; //cycles to skip
+    unsigned counter = 0;
+
     //Snake
     bool loop = true;
     int direction = 1; // and also speed
-    unsigned sStart{};
-    unsigned sEnd{};
+    unsigned sStart = start;
+    unsigned sEnd = end;
 
     //Color
     CRGB color = CRGB::LavenderBlush;
@@ -168,10 +176,9 @@ struct Zone {
     //Gradient
     CRGBPalette16 palette = RainbowColors_p;
     TBlendType blending = LINEARBLEND;
-
-
+    
     //Modes
-    ColorMode colorMode = ColorMode::GRAD;
+    ColorMode colorMode = ColorMode::RND;
     Mode mode = Mode::STATIC;
 };
 
