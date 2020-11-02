@@ -22,9 +22,10 @@ struct Zone {
 
     void paint(unsigned s, unsigned e) const
     {
-        double steps = e - s;
+        uint8_t index = paletteStart; //for grad
         for (; s < e; ++s) {
-            switch (colorMode) {
+            switch (colorMode)
+            {
                 case RND:
                     FastLED.leds()[s] = CHSV(random(), 255, brightness);
                     break;
@@ -37,7 +38,6 @@ struct Zone {
                 }
                 case GRAD:
                 {
-                    static int index = 0;
                     FastLED.leds()[s] = ColorFromPalette(palette, index, brightness,  blending);
                     index += 3;
                     break;
@@ -115,6 +115,9 @@ struct Zone {
         else
             counter = 0;
 
+        if( colorMode == ColorMode::GRAD )
+            paletteStart += loop;
+
         switch (mode)
         {
             case STATIC:
@@ -175,10 +178,11 @@ struct Zone {
 
     //Gradient
     CRGBPalette16 palette = RainbowColors_p;
-    TBlendType blending = LINEARBLEND;
+    TBlendType blending = TBlendType::LINEARBLEND;
+    uint8_t paletteStart = 0;
     
     //Modes
-    ColorMode colorMode = ColorMode::RND;
+    ColorMode colorMode = ColorMode::GRAD;
     Mode mode = Mode::STATIC;
 };
 
