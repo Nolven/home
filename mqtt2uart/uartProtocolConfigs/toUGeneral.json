@@ -1,0 +1,9 @@
+{
+  "msg_num": 0,
+  "general":
+  {
+    "start":       {"byte": 0, "size": 2},
+    "end":         {"byte": 2, "size": 2},
+    "brightness":  {"byte": 4, "size": 1}
+  }
+}

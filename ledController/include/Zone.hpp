@@ -20,7 +20,7 @@ enum ColorMode
 struct Zone {
     Zone() = default;
 
-    void paint(unsigned s, unsigned e) const
+    void paint(uint16_t s, uint16_t e) const
     {
         uint8_t index = paletteStart; //for grad
         for (; s < e; ++s) {
@@ -49,7 +49,7 @@ struct Zone {
         }
     }
 
-    static inline void paintItBlack(unsigned s, unsigned e) {
+    static inline void paintItBlack(uint16_t s, uint16_t e) {
         for (; s < e; ++s) {
             FastLED.leds()[s] = CRGB::Black;
         }
@@ -110,13 +110,13 @@ struct Zone {
         if (start == end)
             return;
 
-        if( counter++ < delay )
+        if(delayCounter++ < delay )
             return;
         else
-            counter = 0;
+            delayCounter = 0;
 
         if( colorMode == ColorMode::GRAD )
-            paletteStart += loop;
+            paletteStart += gradientSpeed;
 
         switch (mode)
         {
@@ -133,44 +133,35 @@ struct Zone {
         }
     }
 
-    void shift(int n)
+    void setStart(uint8_t newPos)
     {
-        moveStart(n);
-        moveEnd(n);
+        if( newPos > start )
+            paintItBlack(start, newPos);
+        start = newPos;
     }
 
-    void moveEnd(int n)
+    void setEnd(uint8_t newPos)
     {
-        if( n < 0 )
-        {
-            for( unsigned i = end + n; i < end; ++i )
-                FastLED.leds()[i] = CRGB::Black;
-        }
-        end += n;
-    }
-
-    void moveStart(int n)
-    {
-        if( n > 0 )
-        {
-            for( unsigned i = start; i < start + n; ++i )
-                FastLED.leds()[i] = CRGB::Black;
-        }
-        start += n;
+        if( newPos < end )
+            paintItBlack(newPos, end);
+        end = newPos;
     }
 
     //Zone
-    unsigned start = 0; // smaller
-    unsigned end = 0; // greater
+    uint16_t start = 0; // smaller
+    uint16_t end = 0; // greater
 
-    unsigned delay = 0; //cycles to skip
-    unsigned counter = 0;
+    uint8_t delay = 0; //cycles to skip
+    uint8_t delayCounter = 0;
 
     //Snake
     bool loop = true;
-    int direction = 1; // and also speed
+    int8_t direction = 1;
     unsigned sStart = start;
     unsigned sEnd = end;
+    // bool fade;
+    // uint8_t fadePercentage;
+    // Implement length
 
     //Color
     CRGB color = CRGB::LavenderBlush;
@@ -180,7 +171,8 @@ struct Zone {
     CRGBPalette16 palette = RainbowColors_p;
     TBlendType blending = TBlendType::LINEARBLEND;
     uint8_t paletteStart = 0;
-    
+    byte gradientSpeed = 0;
+
     //Modes
     ColorMode colorMode = ColorMode::GRAD;
     Mode mode = Mode::STATIC;

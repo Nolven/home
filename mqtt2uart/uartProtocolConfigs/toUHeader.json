@@ -1,0 +1,4 @@
+{
+    "msg_type": {"byte": 0, "size": 1},
+    "zone":     {"byte": 1, "size": 1}
+}

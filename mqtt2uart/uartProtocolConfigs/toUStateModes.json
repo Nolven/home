@@ -1,0 +1,15 @@
+{
+  "msg_num": 2,
+  "mode": {"byte": 0, "size": 1},
+  "static_state": {
+    "mode_num": 0
+  },
+  "snake_state":
+  {
+    "mode_num": 1,
+    "direction":  {"byte": 1, "size": 1},
+    "length":     {"byte": 2, "size": 2},
+    "loop":       {"byte": 4, "size": 1},
+    "delay":      {"byte": 5, "size": 1}
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "mqtt":
+  {
+    "ip": "",
+    "port": 1883,
+    "name": "",
+    "transport": "tcp",
+    "password": "",
+    "in_topic": "abc",
+    "out_topic": "cba",
+    "byte_config_paths":
+    {
+      "color_modes": "uartProtocolConfigs/toUColorModes.json",
+      "general": "uartProtocolConfigs/toUGeneral.json",
+      "header": "uartProtocolConfigs/toUHeader.json",
+      "state_modes": "uartProtocolConfigs/toUStateModes.json"
+    }
+  },
+  "uart":
+  {
+    "device": "/dev/ttyS1",
+    "baud_rate": 9600,
+    "timeout": 1,
+    "msg_size": 6,
+    "zones_per_msg": 10,
+    "byte_configs":
+    {
+      "led_state": "uartProtocolConfigs/fromULedState.json"
+    }
+  }
+}
