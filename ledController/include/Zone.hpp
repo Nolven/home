@@ -39,7 +39,7 @@ struct Zone {
                 case GRAD:
                 {
                     FastLED.leds()[s] = ColorFromPalette(palette, index, brightness,  blending);
-                    index += 3;
+                    index += gradientColorStep;
                     break;
                 }
                 case MUSIC:
@@ -168,10 +168,11 @@ struct Zone {
     byte brightness = 255;
 
     //Gradient
-    CRGBPalette16 palette = RainbowColors_p;
+    CRGBPalette16 palette = LavaColors_p;
     TBlendType blending = TBlendType::LINEARBLEND;
     uint8_t paletteStart = 0;
     byte gradientSpeed = 0;
+    byte gradientColorStep = 20;
 
     //Modes
     ColorMode colorMode = ColorMode::GRAD;

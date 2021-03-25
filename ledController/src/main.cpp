@@ -24,7 +24,8 @@ void setup() {
     zones[0].start = 0;
     zones[0].end = 150;
 
-    zones[0].colorMode = ColorMode::GRAD;
+    zones[0].colorMode = ColorMode::COL;
+    zones[0].gradientSpeed = 1;
     zones[0].mode = Mode::STATIC;
     zones[0].color = CRGB::Magenta;
     zones[0].loop = true;
@@ -89,21 +90,29 @@ void serialEvent() {
                             break;
 
                         case 1:
+                        {
                             zones[zone].colorMode = ColorMode::GRAD;
                             zones[zone].blending = static_cast<TBlendType>(buffer[3]);
                             zones[zone].gradientSpeed = buffer[4];
+                            zones[zone].gradientColorStep = buffer[5];
+                            byte bytes[buffer[6] * 4]; // 4 for RGB + index
 
-
-                            for( byte color = 0; color < buffer[5]; ++color )
+                            for (byte i = 0; i < buffer[6]; ++i)
                             {
-                                byte offset = 3 * color;
-                                zones[zone].palette[color] = CRGB{buffer[6 + offset],
-                                                                  buffer[6 + offset + 1],
-                                                                  buffer[6 + offset + 2]};
-                                // TODO implement color repeat or intermediate color
+                                byte offset = 3 * i;
+
+                                bytes[offset] = floor(255 / double(buffer[6] - 1)) * i; // color index in a palette
+                                /*if( i == buffer[5] - 1 )
+                                    bytes[offset] = 255;*/
+
+                                bytes[1 + offset] = buffer[7 + offset];     // R
+                                bytes[2 + offset] = buffer[7 + offset + 1]; // G
+                                bytes[3 + offset] = buffer[7 + offset + 2]; // B
+
+                                zones[zone].palette.loadDynamicGradientPalette(bytes);
                             }
                             break;
-
+                        }
                         case 2:
                             zones[zone].colorMode = ColorMode::RND;
                             zones[zone].delay = buffer[3];
@@ -133,7 +142,7 @@ void serialEvent() {
                             //TODO implement length
                             //zones[zone].direction = buffer[3];
 
-                            zones[zone].loop = buffer[6];
+                            zones[zone].loop = buffer[6]; // TODO fix if end < start
                             zones[zone].delay = buffer[7];
                             break;
 
