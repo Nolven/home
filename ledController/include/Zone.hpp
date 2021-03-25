@@ -133,18 +133,31 @@ struct Zone {
         }
     }
 
-    void setStart(uint8_t newPos)
+    void setRange(uint32_t s, uint32_t e)
     {
-        if( newPos > start )
-            paintItBlack(start, newPos);
-        start = newPos;
-    }
+        // Check to be sure
+        if( s > e )
+        {
+            uint16_t buf = s;
+            e = s;
+            s = buf;
+        }
 
-    void setEnd(uint8_t newPos)
-    {
-        if( newPos < end )
-            paintItBlack(newPos, end);
-        end = newPos;
+        // Manually blackout excessive data
+        if ( s > start )
+            paintItBlack(start, s);
+        if ( e < end )
+            paintItBlack(e, end);
+
+        start = s;
+        end = e;
+
+        // Snake state check
+        if ( sStart > end || sStart < start )
+            sStart = start;
+
+        if ( sEnd > end || sEnd < start )
+            sEnd = end;
     }
 
     //Zone

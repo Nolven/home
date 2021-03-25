@@ -53,8 +53,8 @@ void serialEvent() {
         if( Serial.available() >= nextMsgSize )
         {
             byte buffer[nextMsgSize];
-            Serial.write(Serial.readBytes(buffer, nextMsgSize));
-            Serial.write(buffer, nextMsgSize);
+            Serial.readBytes(buffer, nextMsgSize);
+            // Serial.write(buffer, nextMsgSize);
             nextMsgSize = 0;
 
             byte zone = buffer[1];
@@ -68,10 +68,12 @@ void serialEvent() {
             switch (buffer[0])
             {
                 case 0:
-                    zones[zone].setStart(buffer[2] | buffer[3] << 8);
-                    zones[zone].setEnd(buffer[4] | buffer[5] << 8);
+                {
+                    zones[zone].setRange((uint16_t)buffer[3] | ((uint16_t)buffer[2] << 8),
+                                         (uint16_t)buffer[5] | ((uint16_t)buffer[4]) << 8);
                     zones[zone].brightness = buffer[6];
                     break;
+                }
 
                 case 1:
                     /**
@@ -139,8 +141,8 @@ void serialEvent() {
                             zones[zone].mode = Mode::SNAKE;
                             zones[zone].direction = (int)buffer[3];
 
-                            //TODO implement length
-                            //zones[zone].direction = buffer[3];
+                            zones[zone].sStart = zones[zone].start; // TODO can be improved to look prettier
+                            zones[zone].sEnd = zones[zone].start + ((uint16_t)buffer[5] | ((uint16_t)buffer[4] << 8));
 
                             zones[zone].loop = buffer[6]; // TODO fix if end < start
                             zones[zone].delay = buffer[7];
@@ -162,6 +164,7 @@ void serialEvent() {
 
 void loop()
 {
+    // no clear because it causes flickering
     for(auto & i : zones)
         i.update();
 
