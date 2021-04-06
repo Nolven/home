@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".led">
+    tools:context=".Led">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -38,42 +38,58 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 
-    <com.google.android.material.textfield.TextInputLayout
+    <ScrollView
         android:layout_width="match_parent"
-        style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/led_zone_start"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="@string/led_start_hint"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:orientation="vertical">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/connection_ip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:hint="@string/led_end_hint"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            <!--General part-->
+            <Button
+                android:id="@+id/led_general_wrap_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/led_general_label"/>
+            <include
+                layout="@layout/led_general"
+                android:id="@+id/led_general_include"
+                android:visibility="gone"/>
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+            <!--Mode part-->
+            <Button
+                android:id="@+id/led_mode_wrap_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/led_mode_label"/>
+            <include
+                layout="@layout/led_mode_snake"
+                android:id="@+id/led_mode_snake_include"
+                android:visibility="gone"/>
 
-    </com.google.android.material.tabs.TabLayout>
+            <!--Color part-->
+            <Button
+                android:id="@+id/led_color_wrap_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/led_color_label"/>
+            <include
+                layout="@layout/led_color_gradient"
+                android:id="@+id/led_color_gradient_include"
+                android:visibility="gone"/>
+            <include
+                layout="@layout/led_color_random"
+                android:id="@+id/led_color_random_include"
+                android:visibility="gone"/>
+            <include
+                layout="@layout/led_color_static"
+                android:id="@+id/led_color_static_include"
+                android:visibility="gone"/>
 
-    <androidx.viewpager2.widget.ViewPager2
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        </LinearLayout>
+    </ScrollView>
 
     <Button
         android:id="@+id/led_send_button"

@@ -15,13 +15,13 @@ class MainActivity : AppCompatActivity() {
         navigation_view.setNavigationItemSelectedListener{ it: MenuItem ->
             when (it.itemId)
             {
-                R.id.menu_lights -> {
+                R.id.nav_led -> {
                     supportFragmentManager.commit {
-                        replace<led>(R.id.fragment_host)
+                        replace<Led>(R.id.fragment_host)
                         setReorderingAllowed(true)
                         addToBackStack(null) }
                 }
-                R.id.menu_stats -> {
+                R.id.nav_stats -> {
                     supportFragmentManager.commit {
                         replace<statistics>(R.id.fragment_host)
                         setReorderingAllowed(true)

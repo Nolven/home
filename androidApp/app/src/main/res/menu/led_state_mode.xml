@@ -4,6 +4,9 @@
         android:id="@+id/state_mode"
         android:checkableBehavior="single">
         <item
+            android:id="@id/none"
+            android:title="@string/led_mode_label" />
+        <item
             android:id="@+id/snake_state"
             android:title="@string/snake_state" />
         <item

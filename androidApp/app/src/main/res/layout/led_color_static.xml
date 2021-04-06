@@ -3,8 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".led_color_static">
+    android:orientation="vertical">
 
     <Button
         android:id="@+id/color_button"

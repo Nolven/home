@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group
-        android:id="@+id/led_mode"
+        android:id="@+id/led_color_mode"
         android:checkableBehavior="single">
+        <item
+            android:id="@+id/none"
+            android:title="@string/led_color_mode_label" />
         <item
             android:id="@+id/static_color"
             android:title="@string/static_color" />

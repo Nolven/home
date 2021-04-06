@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">homeControle</string>
+    <string name="app_name">homeControl</string>
     <string name="mqtt_ip_hint">IP</string>
     <string name="title_activity_connection">ConnectionActivity</string>
     <string name="connection_ip_label">Ip</string>
@@ -14,7 +14,6 @@
     <string name="snake_direction_there_label">there</string>
     <string name="snake_direction_here_label">here</string>
     <string name="snake_direction_label">Direction</string>
-    <string name="led_mode_label">Mode</string>
     <string name="menu_lights">Lights</string>
     <string name="menu_stats">Statistics</string>
     <string name="room_spinner_label">Room</string>
@@ -35,6 +34,10 @@
     <string name="snake_state">Snake</string>
     <string name="static_state">Static</string>
     <string name="Send">Send</string>
+    <string name="led_general_label">Boundaries</string>
+    <string name="led_mode_label">Mode</string>
+    <string name="led_color_label">Color mode</string>
+    <string name="led_gradient_clear">Remove</string>
 
     <string-array name="led_modes">
         <item>Snake</item>
