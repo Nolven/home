@@ -1,0 +1,4 @@
+<resources>
+    <string name="room_led_input_topic">cba</string>
+    <string name="room_led_output_topic">abc</string>
+</resources>

@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">homeControle</string>
+    <string name="mqtt_ip_hint">IP</string>
+    <string name="title_activity_connection">ConnectionActivity</string>
+    <string name="connection_ip_label">Ip</string>
+    <string name="mqtt_port_hint">Port</string>
+    <string name="connect_button_text">Connect</string>
+    <string name="save_button_text">save</string>
+    <string name="connect_error_msg">Connection error</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="snake_length_hint">Length</string>
+    <string name="snake_loop_label">Loop</string>
+    <string name="snake_delay_label">Delay</string>
+    <string name="snake_direction_there_label">there</string>
+    <string name="snake_direction_here_label">here</string>
+    <string name="snake_direction_label">Direction</string>
+    <string name="led_mode_label">Mode</string>
+    <string name="menu_lights">Lights</string>
+    <string name="menu_stats">Statistics</string>
+    <string name="room_spinner_label">Room</string>
+    <string name="zone_spinner_label">Zone</string>
+    <string name="static_color">Static</string>
+    <string name="random_color">Random</string>
+    <string name="gradient_color">Gradient</string>
+    <string name="led_color_mode_label">Color modes</string>
+    <string name="gradient_color_remove">Remove</string>
+    <string name="gradient_add_color">Add color</string>
+    <string name="led_start_hint">Start</string>
+    <string name="led_end_hint">End</string>
+    <string name="led_random_delay_hint">Delay</string>
+    <string name="gradient_color_speed_hint">Speed</string>
+    <string name="gradient_sampler_step">Sampler step</string>
+    <string name="gradient_blending">Blending</string>
+    <string name="led_mode_choose">Choose mode</string>
+    <string name="snake_state">Snake</string>
+    <string name="static_state">Static</string>
+    <string name="Send">Send</string>
+
+    <string-array name="led_modes">
+        <item>Snake</item>
+        <item>Static</item>
+    </string-array>
+
+    <string-array name="blending_modes">
+        <item>None</item>
+        <item>LinearBlending</item>
+    </string-array>
+
+    <string-array name="room_names">
+        <item>Hallway</item>
+    </string-array>
+
+    <!--Order is important (idk better way to do it)-->
+    <string-array name="room_topics">
+        <item>abc</item>
+    </string-array>
+
+</resources>

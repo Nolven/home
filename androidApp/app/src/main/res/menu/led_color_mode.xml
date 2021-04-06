@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/led_mode"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/static_color"
+            android:title="@string/static_color" />
+        <item
+            android:id="@+id/random_color"
+            android:title="@string/random_color" />
+        <item
+            android:id="@+id/gradient_color"
+            android:title="@string/gradient_color" />
+    </group>
+</menu>

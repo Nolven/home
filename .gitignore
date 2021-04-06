@@ -1,8 +1,0 @@
-ledController/cmake-build-debug
-ledController/cmake-build-nanoatmega328
-ledController/CMakeListsPrivate.txt
-ledController/.pio
-ledController/.idea
-
-mqtt2uart/.idea
-mqtt2uart/interfaces/__pycache__
