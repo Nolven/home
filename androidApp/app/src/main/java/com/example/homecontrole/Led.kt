@@ -34,12 +34,13 @@ class Led : Fragment() {
     private lateinit var gradient: Gradient
     private var staticColor: Int = 0xFFFF00FF.toInt()
 
-    private fun setupMenus()
+    private fun setupMenus(v: View)
     {
         //Color menu
         colorMenu.inflate(R.menu.led_color_mode)
         colorMenu.setOnMenuItemClickListener {
             it.isChecked = true
+            v.led_color_wrap_button.text = it.title
             when( it.itemId )
             {
                 R.id.static_color -> {
@@ -70,6 +71,7 @@ class Led : Fragment() {
         modeMenu.inflate(R.menu.led_state_mode)
         modeMenu.setOnMenuItemClickListener {
             it.isChecked = true
+            v.led_mode_wrap_button.text = it.title
             when( it.itemId )
             {
                 R.id.snake_state -> { requireView().led_mode_snake_include.visibility = View.VISIBLE }
@@ -87,7 +89,7 @@ class Led : Fragment() {
         // Create menus
         colorMenu = PopupMenu(requireContext(), view.led_color_wrap_button)
         modeMenu = PopupMenu(requireContext(), view.led_mode_wrap_button)
-        setupMenus()
+        setupMenus(view)
 
         gradient = Gradient(view.led_color_gradient_include, requireContext())
 
