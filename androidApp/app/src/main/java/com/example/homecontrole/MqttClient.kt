@@ -70,8 +70,7 @@ open class MqttClient(private val context: Context) {
             }
 
             override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {
-                Log.w(logTag, exception.toString())
-                failCb("Unable to connect")
+                failCb(exception.toString())
             }
         })
     }

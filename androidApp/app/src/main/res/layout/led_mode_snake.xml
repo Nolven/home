@@ -24,7 +24,7 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/connection_ip"
+            android:id="@+id/delay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -33,6 +33,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <RadioGroup
+        android:id="@+id/direction_group"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -42,17 +43,20 @@
             android:layout_height="wrap_content"
             android:text="@string/snake_direction_label"/>
 
-        <RadioButton android:id="@+id/radio_pirates"
+        <RadioButton
+            android:id="@+id/snake_there"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/snake_direction_there_label"/>
-        <RadioButton android:id="@+id/radio_ninjas"
+        <RadioButton
+            android:id="@+id/snake_here"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/snake_direction_here_label" />
     </RadioGroup>
 
-    <CheckBox android:id="@+id/checkbox_meat"
+    <CheckBox
+        android:id="@+id/checkbox_meat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/snake_loop_label"/>

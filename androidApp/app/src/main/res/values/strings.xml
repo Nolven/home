@@ -39,6 +39,7 @@
     <string name="led_color_label">Color mode</string>
     <string name="led_gradient_clear">Remove</string>
     <string name="menu_connection">Connection</string>
+    <string name="led_brightness">Brightness</string>
 
     <string-array name="led_modes">
         <item>Snake</item>

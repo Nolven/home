@@ -2,6 +2,7 @@ package com.example.homecontrole
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -14,6 +15,7 @@ class MainActivity : AppCompatActivity() {
     // Callback function for mqtt connection establishment
     private fun onConnect()
     {
+        Log.d("TAG", "CONNECTED")
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         supportFragmentManager.commit {
             replace<Led>(R.id.fragment_host)
@@ -23,6 +25,7 @@ class MainActivity : AppCompatActivity() {
     // Callback function for mqtt disconnect
     private fun onDisconnect()
     {
+        Log.d("TAG", "DISCONNECTED")
         drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         supportFragmentManager.commit {
             replace<Connection>(R.id.fragment_host)
