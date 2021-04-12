@@ -3,19 +3,20 @@
 
 #include "Zone.hpp"
 
-#define DATA_PIN 7
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
-#define NUM_LEDS 150
+constexpr size_t numberOfLeds = 150;
+constexpr byte dataPin = 7;
 
-CRGB leds[NUM_LEDS];
 
-#define ZONE_NUM 10
-Zone zones[ZONE_NUM];
+CRGB leds[numberOfLeds];
+
+constexpr uint8_t numberOfZones = 10;
+Zone zones[numberOfZones];
 
 void setup() {
     delay(2000); // initial delay of a few seconds is recommended
-    CFastLED::addLeds<LED_TYPE,DATA_PIN,COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip); // initializes LED strip
+    CFastLED::addLeds<LED_TYPE,dataPin,COLOR_ORDER>(leds, numberOfLeds).setCorrection(TypicalLEDStrip); // initializes LED strip
     Serial.begin(2400);
     Serial.setTimeout(20);
 
@@ -24,7 +25,7 @@ void setup() {
     zones[0].start = 0;
     zones[0].end = 150;
 
-    zones[0].colorMode = ColorMode::COL;
+    zones[0].colorMode = ColorMode::GRAD;
     zones[0].gradientSpeed = 1;
     zones[0].mode = Mode::STATIC;
     zones[0].color = CRGB::Magenta;
@@ -43,7 +44,7 @@ void setup() {
  * 5. Msg body
  */
 void serialEvent() {
-    static uint8_t nextMsgSize = 0; // 0 means that msg size is unknown
+    static uint8_t nextMsgSize = 0; // 0 means that msg size is not received yet
 
     if (Serial.available())
     {
@@ -52,9 +53,10 @@ void serialEvent() {
 
         if( Serial.available() >= nextMsgSize )
         {
+            Serial.write(Serial.available()); // Gonna use it as ack that msg been received
+
             byte buffer[nextMsgSize];
             Serial.readBytes(buffer, nextMsgSize);
-            // Serial.write(buffer, nextMsgSize);
             nextMsgSize = 0;
 
             byte zone = buffer[1];
@@ -104,8 +106,6 @@ void serialEvent() {
                                 byte offset = 3 * i;
 
                                 bytes[offset] = floor(255 / double(buffer[6] - 1)) * i; // color index in a palette
-                                /*if( i == buffer[5] - 1 )
-                                    bytes[offset] = 255;*/
 
                                 bytes[1 + offset] = buffer[7 + offset];     // R
                                 bytes[2 + offset] = buffer[7 + offset + 1]; // G
