@@ -34,11 +34,11 @@ open class MqttClient(private val context: Context) {
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
-                TODO("Not yet implemented")
+                Log.d(logTag, "Message arrived")
             }
 
             override fun deliveryComplete(token: IMqttDeliveryToken?) {
-                TODO("Not yet implemented")
+                Log.d(logTag, "Message delivered")
             }
 
             override fun connectComplete(reconnect: Boolean, serverURI: String?) {

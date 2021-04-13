@@ -17,6 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
+            android:maxLength="2"
             android:hint="@string/gradient_color_speed_hint"/>
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -30,6 +31,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
+            android:maxLength="2"
             android:hint="@string/gradient_sampler_step"/>
     </com.google.android.material.textfield.TextInputLayout>
 

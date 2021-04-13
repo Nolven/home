@@ -88,7 +88,7 @@ class Led : Fragment() {
 
                     colorDataFunction = {
                         val o = JsonObject()
-                        o.addProperty("delay", v.led_color_random_include.color_random_delay.text.toString())
+                        o.addProperty("delay", parseInt(v.led_color_random_include.color_random_delay.text.toString()))
                         o
                     }
                     colorJsonName = "rnd_color"
@@ -99,7 +99,7 @@ class Led : Fragment() {
                     requireView().led_color_random_include.visibility = View.GONE
 
                     colorDataFunction = { gradient.getJson() }
-                    colorJsonName = "gradient"
+                    colorJsonName = "grad_color"
                 }
                 R.id.none -> {
                     requireView().led_color_static_include.visibility = View.GONE
@@ -142,7 +142,7 @@ class Led : Fragment() {
         if( colorJsonName.isNotEmpty() )
         {
             val json = JsonObject()
-            json.addProperty("zone", requireView().zone_spinner.selectedItem.toString())
+            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
             json.add(colorJsonName, colorDataFunction())
             Log.d("Color", json.toString())
             // TODO change topic name for the room spinner value
@@ -155,7 +155,7 @@ class Led : Fragment() {
         if ( modeJsonName.isNotEmpty() )
         {
             val json = JsonObject()
-            json.addProperty("zone", requireView().zone_spinner.selectedItem.toString())
+            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
             json.add(modeJsonName, modeDataFunction())
             Log.d("State", json.toString())
             // TODO change topic name for the room spinner value
@@ -168,7 +168,7 @@ class Led : Fragment() {
         if( requireView().led_general_include.visibility == View.VISIBLE )
         {
             val json = JsonObject()
-            json.addProperty("zone", requireView().zone_spinner.selectedItem.toString())
+            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
             json.add("general", Gson().toJsonTree(generalData))
             Log.d("General", json.toString())
             // TODO change topic name for the room spinner value
@@ -201,30 +201,28 @@ class Led : Fragment() {
                     staticColorData.R,
                     staticColorData.G,
                     staticColorData.B)
-            view.led_color_static_include.color_button.setOnClickListener{
-                ColorPickerDialogBuilder
-                    .with(context)
-                    .setTitle("Choose color")
-                    .initialColor(initialColor)
-                    .lightnessSliderOnly()
-                    .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                    .density(12)
-                    .setOnColorSelectedListener { selectedColor ->
-                        staticColorData.R = selectedColor.red
-                        staticColorData.G = selectedColor.green
-                        staticColorData.B = selectedColor.blue
-                        colorButton.setBackgroundColor(selectedColor)
-                    }
-                    .setPositiveButton("Choose") { _, _, _ ->}
-                    .setNegativeButton("Cancel") { _, _ ->
-                        staticColorData.R = initialColor.red
-                        staticColorData.G = initialColor.green
-                        staticColorData.B = initialColor.blue
-                        colorButton.setBackgroundColor(initialColor)
-                    }
-                    .build()
-                    .show()
-            }
+            ColorPickerDialogBuilder
+                .with(context)
+                .setTitle("Choose color")
+                .initialColor(initialColor)
+                .lightnessSliderOnly()
+                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
+                .density(12)
+                .setOnColorSelectedListener { selectedColor ->
+                    staticColorData.R = selectedColor.red
+                    staticColorData.G = selectedColor.green
+                    staticColorData.B = selectedColor.blue
+                    colorButton.setBackgroundColor(selectedColor)
+                }
+                .setPositiveButton("Choose") { _, _, _ ->}
+                .setNegativeButton("Cancel") { _, _ ->
+                    staticColorData.R = initialColor.red
+                    staticColorData.G = initialColor.green
+                    staticColorData.B = initialColor.blue
+                    colorButton.setBackgroundColor(initialColor)
+                }
+                .build()
+                .show()
         }
 
         // Room names spinner
@@ -274,19 +272,25 @@ class Led : Fragment() {
         v.led_zone_start.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { generalData.start = parseInt(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                if( s.toString().isNotEmpty())
+                    generalData.start = parseInt(s.toString()) }
         })
 
         v.led_zone_end.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { generalData.end = parseInt(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                if( s.toString().isNotEmpty())
+                    generalData.end = parseInt(s.toString()) }
         })
 
         v.led_zone_brightness.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) { generalData.brightness = parseInt(s.toString()) }
+            override fun afterTextChanged(s: Editable?) {
+                if( s.toString().isNotEmpty())
+                    generalData.brightness = parseInt(s.toString()) }
         })
     }
 

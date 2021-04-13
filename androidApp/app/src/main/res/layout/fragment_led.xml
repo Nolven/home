@@ -50,7 +50,7 @@
             <!--General part-->
             <Button
                 android:id="@+id/led_general_wrap_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_general_label"/>
             <include
@@ -61,7 +61,7 @@
             <!--Mode part-->
             <Button
                 android:id="@+id/led_mode_wrap_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_mode_label"/>
             <include
@@ -72,7 +72,7 @@
             <!--Color part-->
             <Button
                 android:id="@+id/led_color_wrap_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_color_label"/>
             <include
