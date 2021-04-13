@@ -51,16 +51,32 @@
             android:layout_height="wrap_content"/>
     </LinearLayout>
 
-    <LinearLayout
+    <GridLayout
         android:id="@+id/led_color_gradient_host"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:columnCount="4"
+        android:useDefaultMargins="true" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="?android:attr/buttonBarButtonStyle">
+
+        <Button
+            android:id="@+id/gradient_add_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gradient_add_color" />
+        <!-- Should be better way -->
+        <Button
+            android:id="@+id/gradient_remove_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/gradient_remove_color_hint"
+            android:visibility="invisible"/>
+
     </LinearLayout>
 
-    <Button
-        android:id="@+id/gradient_add_color_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/gradient_add_color" />
 </LinearLayout>
