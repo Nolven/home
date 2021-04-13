@@ -6,11 +6,15 @@ import android.util.Log
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import androidx.room.Room
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
+    // TODO move modelView
     lateinit var mqtt: MqttClient
+    lateinit var connectionDb: ConnectionDatabase
+    lateinit var connectionDao: ConnectionDao
 
     // Callback function for mqtt connection establishment
     private fun onConnect()
@@ -35,6 +39,12 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        // Load db
+        connectionDb = Room.databaseBuilder(
+            applicationContext,
+            ConnectionDatabase::class.java, "connections").build()
+        connectionDao = connectionDb.connectionDao()
 
         // Setup mqtt client
         mqtt = MqttClient(applicationContext)
@@ -66,6 +76,7 @@ class MainActivity : AppCompatActivity() {
                         addToBackStack(null) }
                 }
             }
+            // TODO hide drawer
             true
         }
     }

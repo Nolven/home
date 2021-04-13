@@ -47,6 +47,13 @@ open class MqttClient(private val context: Context) {
         })
     }
 
+    // for uri like server:port
+    fun connect(url: String, failCb: (reason: String) -> Unit)
+    {
+        val index = url.indexOf(":")
+        connect(url.substring(0, index), url.substring(index), failCb)
+    }
+
     fun connect(server: String, port: String, failCb: (reason: String) -> Unit)
     {
         //Re-init client
