@@ -2,7 +2,7 @@
 <!-- It's a *BIT* messy -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/led_gradient_layout"
+    android:id="@+id/host_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">

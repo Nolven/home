@@ -1,3 +1,5 @@
+@file:JvmName("ConnectionFragmentKt")
+
 package com.example.homecontrole
 
 import android.graphics.Color
@@ -9,24 +11,19 @@ import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.PopupMenu
-import android.widget.RadioGroup
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import com.example.homecontrole.databinding.FragmentLedBinding
+import com.example.homecontrole.databinding.LedGeneralBinding
+import com.example.homecontrole.databinding.LedModeSnakeBinding
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
-import kotlinx.android.synthetic.main.fragment_led.view.*
-import kotlinx.android.synthetic.main.led_color_random.view.*
-import kotlinx.android.synthetic.main.led_color_static.view.*
-import kotlinx.android.synthetic.main.led_general.view.*
-import kotlinx.android.synthetic.main.led_mode_snake.*
-import kotlinx.android.synthetic.main.led_mode_snake.view.*
 import java.lang.Integer.parseInt
 
 private const val ARG_PARAM1 = "param1"
@@ -34,7 +31,7 @@ private const val ARG_PARAM2 = "param2"
 
 // TODO split to classes
 
-class Led : Fragment() {
+class FragmentLed : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -70,41 +67,41 @@ class Led : Fragment() {
         colorMenu.inflate(R.menu.led_color_mode)
         colorMenu.setOnMenuItemClickListener {
             it.isChecked = true
-            v.led_color_wrap_button.text = it.title
+            binding.ledColorWrapButton.text = it.title
             when( it.itemId )
             {
                 R.id.static_color -> {
-                    requireView().led_color_static_include.visibility = View.VISIBLE
-                    requireView().led_color_gradient_include.visibility = View.GONE
-                    requireView().led_color_random_include.visibility = View.GONE
+                    binding.ledColorStaticInclude.hostLayout.visibility = View.VISIBLE
+                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
                     colorDataFunction = { Gson().toJsonTree(staticColorData) }
                     colorJsonName = "static_color"
                 }
                 R.id.random_color -> {
-                    requireView().led_color_static_include.visibility = View.GONE
-                    requireView().led_color_gradient_include.visibility = View.GONE
-                    requireView().led_color_random_include.visibility = View.VISIBLE
+                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorRandomInclude.hostLayout.visibility = View.VISIBLE
 
                     colorDataFunction = {
                         val o = JsonObject()
-                        o.addProperty("delay", parseInt(v.led_color_random_include.color_random_delay.text.toString()))
+                        o.addProperty("delay", parseInt(binding.ledColorRandomInclude.colorRandomDelay.text.toString()))
                         o
                     }
                     colorJsonName = "rnd_color"
                 }
                 R.id.gradient_color -> {
-                    requireView().led_color_static_include.visibility = View.GONE
-                    requireView().led_color_gradient_include.visibility = View.VISIBLE
-                    requireView().led_color_random_include.visibility = View.GONE
+                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorGradientInclude.hostLayout.visibility = View.VISIBLE
+                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
                     colorDataFunction = { gradient.getJson() }
                     colorJsonName = "grad_color"
                 }
                 R.id.none -> {
-                    requireView().led_color_static_include.visibility = View.GONE
-                    requireView().led_color_gradient_include.visibility = View.GONE
-                    requireView().led_color_random_include.visibility = View.GONE
+                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
                     colorJsonName = ""
                 }
             }
@@ -115,21 +112,21 @@ class Led : Fragment() {
         modeMenu.inflate(R.menu.led_state_mode)
         modeMenu.setOnMenuItemClickListener {
             it.isChecked = true
-            v.led_mode_wrap_button.text = it.title
+            binding.ledModeWrapButton.text = it.title
             when( it.itemId )
             {
                 R.id.snake_state -> {
-                    requireView().led_mode_snake_include.visibility = View.VISIBLE
+                    binding.ledModeSnakeInclude.hostLayout.visibility = View.VISIBLE
                     modeJsonName = "snake_state"
                     modeDataFunction = { Gson().toJsonTree(snakeStateData) }
                 }
                 R.id.static_state -> {
-                    requireView().led_mode_snake_include.visibility = View.GONE
+                    binding.ledModeSnakeInclude.hostLayout.visibility = View.GONE
                     modeJsonName = "static_state"
                     modeDataFunction = { JsonPrimitive("") }
                 }
                 R.id.none -> {
-                    requireView().led_mode_snake_include.visibility = View.GONE
+                    binding.ledModeSnakeInclude.hostLayout.visibility = View.GONE
                     modeJsonName = ""
                 }
             }
@@ -142,7 +139,7 @@ class Led : Fragment() {
         if( colorJsonName.isNotEmpty() )
         {
             val json = JsonObject()
-            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
+            json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
             json.add(colorJsonName, colorDataFunction())
             Log.d("Color", json.toString())
             // TODO change topic name for the room spinner value
@@ -155,7 +152,7 @@ class Led : Fragment() {
         if ( modeJsonName.isNotEmpty() )
         {
             val json = JsonObject()
-            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
+            json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
             json.add(modeJsonName, modeDataFunction())
             Log.d("State", json.toString())
             // TODO change topic name for the room spinner value
@@ -165,10 +162,10 @@ class Led : Fragment() {
 
     private fun sendGeneralData()
     {
-        if( requireView().led_general_include.visibility == View.VISIBLE )
+        if( colorJsonName.isNotEmpty() )
         {
             val json = JsonObject()
-            json.addProperty("zone", parseInt(requireView().zone_spinner.selectedItem.toString()))
+            json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
             json.add("general", Gson().toJsonTree(generalData))
             Log.d("General", json.toString())
             // TODO change topic name for the room spinner value
@@ -176,22 +173,26 @@ class Led : Fragment() {
         }
     }
 
+    private var _binding: FragmentLedBinding? = null
+    private val binding get() = _binding!!
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val view = inflater.inflate(R.layout.fragment_led, container, false)
+        _binding = FragmentLedBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         // Create menus
-        colorMenu = PopupMenu(requireContext(), view.led_color_wrap_button)
-        modeMenu = PopupMenu(requireContext(), view.led_mode_wrap_button)
+        colorMenu = PopupMenu(requireContext(), binding.ledColorWrapButton)
+        modeMenu = PopupMenu(requireContext(), binding.ledModeWrapButton)
         setupMenus(view)
 
-        gradient = Gradient(view.led_color_gradient_include, requireContext())
+        gradient = Gradient(binding.ledColorGradientInclude, requireContext())
 
-        setSnakeChangeListener(view.led_mode_snake_include)
+        setSnakeChangeListener(binding.ledModeSnakeInclude)
+        setGeneralChangeListener(binding.ledGeneralInclude)
 
-        setGeneralChangeListener(view.led_general_include)
-
-        val colorButton: Button =  view.led_color_static_include.color_button
+        val colorButton: Button =  binding.ledColorStaticInclude.colorButton
         colorButton.setBackgroundColor(Color.rgb(
                 staticColorData.R,
                 staticColorData.G,
@@ -232,21 +233,21 @@ class Led : Fragment() {
                 android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            view.room_spinner.adapter = adapter }
+            binding.roomSpinner.adapter = adapter }
 
         // Zones spinner
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, (0..10).toList())
                 .also {
             it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            view.zone_spinner.adapter = it }
+            binding.zoneSpinner.adapter = it }
 
         setButtons(view)
 
         return view
     }
 
-    private fun setSnakeChangeListener(v: View) {
-        v.length.addTextChangedListener(object : TextWatcher {
+    private fun setSnakeChangeListener(binding: LedModeSnakeBinding) {
+        binding.length.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -254,7 +255,7 @@ class Led : Fragment() {
             }
         })
 
-        v.delay.addTextChangedListener(object : TextWatcher {
+        binding.delay.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -262,14 +263,14 @@ class Led : Fragment() {
             }
         })
 
-        v.snake_here.setOnClickListener { snakeStateData.direction = 1 }
-        v.snake_there.setOnClickListener { snakeStateData.direction = -1 }
-        v.checkbox_meat.setOnClickListener { snakeStateData.loop = v.checkbox_meat.isChecked }
+        binding.snakeHere.setOnClickListener { snakeStateData.direction = 1 }
+        binding.snakeThere.setOnClickListener { snakeStateData.direction = -1 }
+        binding.checkboxMeat.setOnClickListener { snakeStateData.loop = binding.checkboxMeat.isChecked }
     }
 
-    private fun setGeneralChangeListener(v: View)
+    private fun setGeneralChangeListener(binding: LedGeneralBinding)
     {
-        v.led_zone_start.addTextChangedListener( object: TextWatcher{
+        binding.ledZoneStart.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -277,7 +278,7 @@ class Led : Fragment() {
                     generalData.start = parseInt(s.toString()) }
         })
 
-        v.led_zone_end.addTextChangedListener( object: TextWatcher{
+        binding.ledZoneEnd.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -285,7 +286,7 @@ class Led : Fragment() {
                     generalData.end = parseInt(s.toString()) }
         })
 
-        v.led_zone_brightness.addTextChangedListener( object: TextWatcher{
+        binding.ledZoneBrightness.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -296,17 +297,17 @@ class Led : Fragment() {
 
     private fun setButtons(v: View)
     {
-        v.led_mode_wrap_button.setOnClickListener { modeMenu.show() }
-        v.led_color_wrap_button.setOnClickListener { colorMenu.show() }
+        binding.ledModeWrapButton.setOnClickListener { modeMenu.show() }
+        binding.ledColorWrapButton.setOnClickListener { colorMenu.show() }
 
-        v.led_send_button.setOnClickListener{
+        binding.ledSendButton.setOnClickListener{
             sendColorData()
             sendGeneralData()
             sendStateData()
         }
 
-        v.led_general_wrap_button.setOnClickListener {
-            v.led_general_include.visibility = when( v.led_general_include.visibility )
+        binding.ledGeneralWrapButton.setOnClickListener {
+            binding.ledGeneralInclude.hostLayout.visibility = when( binding.ledGeneralInclude.hostLayout.visibility )
             {
                 View.VISIBLE -> View.GONE
                 View.GONE -> View.VISIBLE
@@ -318,7 +319,7 @@ class Led : Fragment() {
     companion object {
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-                Led().apply {
+                FragmentLed().apply {
                     arguments = Bundle().apply {
                         putString(ARG_PARAM1, param1)
                         putString(ARG_PARAM2, param2)

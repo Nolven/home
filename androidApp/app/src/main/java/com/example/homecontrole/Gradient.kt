@@ -12,15 +12,15 @@ import android.widget.Button
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import com.example.homecontrole.databinding.LedColorGradientBinding
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.JsonElement
-import kotlinx.android.synthetic.main.led_color_gradient.view.*
 import java.lang.Integer.parseInt
 
 
-class Gradient(private val view: View, private val context: Context)
+class Gradient(private val binding: LedColorGradientBinding, private val context: Context)
 {
     private var colorPickerIds: ArrayList<Int> = ArrayList()
 
@@ -28,7 +28,7 @@ class Gradient(private val view: View, private val context: Context)
 
     private fun removeColor()
     {
-        view.led_color_gradient_host.removeView(view.findViewById(colorPickerIds.last()))
+        binding.ledColorGradientHost.removeView(binding.root.findViewById(colorPickerIds.last()))
 
         // Remove last id's
         data.colors.removeAt(data.colors.size - 1)
@@ -36,7 +36,7 @@ class Gradient(private val view: View, private val context: Context)
 
         // Hide clear button when there is no colors
         if( colorPickerIds.isEmpty() )
-            view.gradient_remove_color.visibility = View.INVISIBLE
+            binding.gradientRemoveColor.visibility = View.INVISIBLE
     }
 
     private fun addColor()
@@ -79,36 +79,36 @@ class Gradient(private val view: View, private val context: Context)
                 .show()
         }
 
-        view.led_color_gradient_host.addView(colorButton)
+        binding.ledColorGradientHost.addView(colorButton)
 
         // Show clear button
-        if (view.gradient_remove_color.visibility == View.INVISIBLE)
-            view.gradient_remove_color.visibility = View.VISIBLE
+        if (binding.gradientRemoveColor.visibility == View.INVISIBLE)
+            binding.gradientRemoveColor.visibility = View.VISIBLE
     }
 
     private fun setDataUpdateCb()
     {
-        view.gradient_speed.addTextChangedListener(object : TextWatcher {
+        binding.gradientSpeed.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
                 if( s.toString().isNotEmpty() )
-                    data.speed = parseInt(view.gradient_speed.text.toString())
+                    data.speed = parseInt(binding.gradientSpeed.text.toString())
             }
         })
 
-        view.gradient_sampler_step.addTextChangedListener(object : TextWatcher {
+        binding.gradientSamplerStep.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
                 if( s.toString().isNotEmpty() )
-                    data.sampler_step = parseInt(view.gradient_sampler_step.text.toString())
+                    data.sampler_step = parseInt(binding.gradientSamplerStep.text.toString())
             }
         })
 
-        view.gradient_blending.onItemSelectedListener =
+        binding.gradientBlending.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
                     parentView: AdapterView<*>?,
@@ -132,8 +132,8 @@ class Gradient(private val view: View, private val context: Context)
     }
 
     init {
-        view.gradient_add_color.setOnClickListener { addColor() }
-        view.gradient_remove_color.setOnClickListener{ removeColor() }
+        binding.gradientAddColor.setOnClickListener { addColor() }
+        binding.gradientRemoveColor.setOnClickListener{ removeColor() }
         setDataUpdateCb()
 
        ArrayAdapter.createFromResource(
@@ -141,7 +141,7 @@ class Gradient(private val view: View, private val context: Context)
            android.R.layout.simple_spinner_item
        ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-            view.gradient_blending.adapter = adapter
+            binding.gradientBlending.adapter = adapter
        }
     }
 }

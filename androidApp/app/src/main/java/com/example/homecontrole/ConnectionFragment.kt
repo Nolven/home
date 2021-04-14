@@ -14,9 +14,9 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
-import kotlinx.android.synthetic.main.fragment_connection.view.*
+import com.example.homecontrole.databinding.FragmentConnectionBinding
 
-class Connection : Fragment() {
+class ConnectionFragment : Fragment() {
     private var requestCode = 0
     private val requiredPermissions = arrayOf(
             Manifest.permission.ACCESS_NETWORK_STATE,
@@ -42,19 +42,19 @@ class Connection : Fragment() {
 
     private fun connect()
     {
-        requireView().status_label.text = "Loading"
-        (requireActivity() as MainActivity).mqtt.connect(requireView().connection_ip.text.toString(),
-                requireView().connection_port.text.toString(),
+        binding.statusLabel.text = "Loading"
+        (requireActivity() as MainActivity).mqtt.connect(binding.connectionIp.text.toString(),
+                binding.connectionPort.text.toString(),
                 this::onConnectionFail)
     }
 
     private fun onConnectionFail(reason: String){
-        requireView().status_label.text = reason
+        binding.statusLabel.text = reason
     }
 
     private fun loadConnectionsFromDb(v: View)
     {
-        v.connections_holder.removeAllViews()
+        binding.connectionsHolder.removeAllViews()
         val connections = (requireActivity() as MainActivity).connectionDao.getAll()
         connections.forEach{ showConnection(it) }
     }
@@ -67,8 +67,8 @@ class Connection : Fragment() {
         val text = TextView(requireContext())
         text.text = "${connection.url}:${connection.port}"
         text.setOnClickListener{
-            requireView().connection_ip.setText(connection.url)
-            requireView().connection_port.setText(connection.port)
+            binding.connectionIp.setText(connection.url)
+            binding.connectionPort.setText(connection.port)
 
             connect()
         }
@@ -81,7 +81,7 @@ class Connection : Fragment() {
 
         ll.addView(closeButton)
 
-        requireView().connections_holder.addView(ll)
+        binding.connectionsHolder.addView(ll)
     }
 
     private fun addConnection(connection: ConnectionEntity)
@@ -102,19 +102,23 @@ class Connection : Fragment() {
     private fun removeConnection(connection: ConnectionEntity, ll: LinearLayout)
     {
         AsyncTask.execute { (requireActivity() as MainActivity).connectionDao.delete(connection) }
-        requireView().connections_holder.removeView(ll)
+        binding.connectionsHolder.removeView(ll)
     }
 
+    private var _binding: FragmentConnectionBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater, container: ViewGroup?,
-            savedInstanceState: Bundle?): View? {
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View {
 
-        val view = inflater.inflate(R.layout.fragment_connection, container, false)
+        _binding = FragmentConnectionBinding.inflate(inflater, container, false)
+        val view = binding.root
 
         AsyncTask.execute{loadConnectionsFromDb(view)}
 
-        view.connect_button.setOnClickListener {
+        binding.connectButton.setOnClickListener {
             if( !havePermissions() )
             {
                 if (ActivityCompat.shouldShowRequestPermissionRationale(requireActivity(), Manifest.permission.ACCESS_NETWORK_STATE) &&
@@ -126,7 +130,7 @@ class Connection : Fragment() {
             else
             {
                 // TODO change to modelView as big boiiiiiiiiiiiiiiiiiiiiii
-                val con = ConnectionEntity(view.connection_ip.text.toString(), view.connection_port.text.toString())
+                val con = ConnectionEntity(binding.connectionIp.text.toString(), binding.connectionPort.text.toString())
                 addConnection(con)
                 // TODO add loading wheel or something
                 connect()

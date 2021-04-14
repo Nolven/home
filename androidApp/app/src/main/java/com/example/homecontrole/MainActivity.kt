@@ -7,7 +7,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
 import androidx.room.Room
-import kotlinx.android.synthetic.main.activity_main.*
+import com.example.homecontrole.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,9 +20,9 @@ class MainActivity : AppCompatActivity() {
     private fun onConnect()
     {
         Log.d("TAG", "CONNECTED")
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         supportFragmentManager.commit {
-            replace<Led>(R.id.fragment_host)
+            replace<FragmentLed>(R.id.fragment_host)
             setReorderingAllowed(true) }
     }
 
@@ -30,15 +30,19 @@ class MainActivity : AppCompatActivity() {
     private fun onDisconnect()
     {
         Log.d("TAG", "DISCONNECTED")
-        drawer_layout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         supportFragmentManager.commit {
-            replace<Connection>(R.id.fragment_host)
+            replace<ConnectionFragment>(R.id.fragment_host)
             setReorderingAllowed(true) }
     }
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
         // Load db
         connectionDb = Room.databaseBuilder(
@@ -54,24 +58,24 @@ class MainActivity : AppCompatActivity() {
         // Assume we are disconnected form the server
         onDisconnect()
 
-        navigation_view.setNavigationItemSelectedListener{
+        binding.navigationView.setNavigationItemSelectedListener{
             when (it.itemId)
             {
                 R.id.nav_led -> {
                     supportFragmentManager.commit {
-                        replace<Led>(R.id.fragment_host)
+                        replace<FragmentLed>(R.id.fragment_host)
                         setReorderingAllowed(true)
                         addToBackStack(null) }
                 }
                 R.id.nav_stats -> {
                     supportFragmentManager.commit {
-                        replace<statistics>(R.id.fragment_host)
+                        replace<Statistics>(R.id.fragment_host)
                         setReorderingAllowed(true)
                         addToBackStack(null) }
                 }
                 R.id.nav_connection -> {
                     supportFragmentManager.commit {
-                        replace<Connection>(R.id.fragment_host)
+                        replace<ConnectionFragment>(R.id.fragment_host)
                         setReorderingAllowed(true)
                         addToBackStack(null) }
                 }
