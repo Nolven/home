@@ -1,4 +1,4 @@
-package com.example.homecontrole
+package com.example.homecontrole.led
 
 data class GradientData(
     var blending: Int,

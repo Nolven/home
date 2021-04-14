@@ -1,4 +1,4 @@
-package com.example.homecontrole
+package com.example.homecontrole.led
 
 import android.content.Context
 import android.graphics.Color
@@ -12,6 +12,7 @@ import android.widget.Button
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import com.example.homecontrole.R
 import com.example.homecontrole.databinding.LedColorGradientBinding
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder

@@ -1,6 +1,6 @@
 @file:JvmName("ConnectionFragmentKt")
 
-package com.example.homecontrole
+package com.example.homecontrole.led
 
 import android.graphics.Color
 import android.os.Bundle
@@ -15,6 +15,8 @@ import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
 import androidx.fragment.app.Fragment
+import com.example.homecontrole.MainActivity
+import com.example.homecontrole.R
 import com.example.homecontrole.databinding.FragmentLedBinding
 import com.example.homecontrole.databinding.LedGeneralBinding
 import com.example.homecontrole.databinding.LedModeSnakeBinding
@@ -229,7 +231,7 @@ class FragmentLed : Fragment() {
         // Room names spinner
         ArrayAdapter.createFromResource(
                 requireContext(),
-                R.array.room_names,
+            R.array.room_names,
                 android.R.layout.simple_spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
