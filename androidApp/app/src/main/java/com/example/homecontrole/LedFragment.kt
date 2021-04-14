@@ -67,7 +67,7 @@ class FragmentLed : Fragment() {
         colorMenu.inflate(R.menu.led_color_mode)
         colorMenu.setOnMenuItemClickListener {
             it.isChecked = true
-            binding.ledColorWrapButton.text = it.title
+            binding.colorModeButton.text = it.title
             when( it.itemId )
             {
                 R.id.static_color -> {
@@ -112,21 +112,21 @@ class FragmentLed : Fragment() {
         modeMenu.inflate(R.menu.led_state_mode)
         modeMenu.setOnMenuItemClickListener {
             it.isChecked = true
-            binding.ledModeWrapButton.text = it.title
+            binding.modeButton.text = it.title
             when( it.itemId )
             {
                 R.id.snake_state -> {
-                    binding.ledModeSnakeInclude.hostLayout.visibility = View.VISIBLE
+                    binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
                     modeJsonName = "snake_state"
                     modeDataFunction = { Gson().toJsonTree(snakeStateData) }
                 }
                 R.id.static_state -> {
-                    binding.ledModeSnakeInclude.hostLayout.visibility = View.GONE
+                    binding.modeSnakeInclude.hostLayout.visibility = View.GONE
                     modeJsonName = "static_state"
                     modeDataFunction = { JsonPrimitive("") }
                 }
                 R.id.none -> {
-                    binding.ledModeSnakeInclude.hostLayout.visibility = View.GONE
+                    binding.modeSnakeInclude.hostLayout.visibility = View.GONE
                     modeJsonName = ""
                 }
             }
@@ -183,14 +183,14 @@ class FragmentLed : Fragment() {
         val view = binding.root
 
         // Create menus
-        colorMenu = PopupMenu(requireContext(), binding.ledColorWrapButton)
-        modeMenu = PopupMenu(requireContext(), binding.ledModeWrapButton)
+        colorMenu = PopupMenu(requireContext(), binding.colorModeButton)
+        modeMenu = PopupMenu(requireContext(), binding.modeButton)
         setupMenus(view)
 
         gradient = Gradient(binding.ledColorGradientInclude, requireContext())
 
-        setSnakeChangeListener(binding.ledModeSnakeInclude)
-        setGeneralChangeListener(binding.ledGeneralInclude)
+        setSnakeChangeListener(binding.modeSnakeInclude)
+        setGeneralChangeListener(binding.generalInclude)
 
         val colorButton: Button =  binding.ledColorStaticInclude.colorButton
         colorButton.setBackgroundColor(Color.rgb(
@@ -270,7 +270,7 @@ class FragmentLed : Fragment() {
 
     private fun setGeneralChangeListener(binding: LedGeneralBinding)
     {
-        binding.ledZoneStart.addTextChangedListener( object: TextWatcher{
+        binding.zoneStartTextEdit.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -278,7 +278,7 @@ class FragmentLed : Fragment() {
                     generalData.start = parseInt(s.toString()) }
         })
 
-        binding.ledZoneEnd.addTextChangedListener( object: TextWatcher{
+        binding.zoneEndTextEdit.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -286,7 +286,7 @@ class FragmentLed : Fragment() {
                     generalData.end = parseInt(s.toString()) }
         })
 
-        binding.ledZoneBrightness.addTextChangedListener( object: TextWatcher{
+        binding.brightnessTextEdit.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
@@ -297,8 +297,8 @@ class FragmentLed : Fragment() {
 
     private fun setButtons(v: View)
     {
-        binding.ledModeWrapButton.setOnClickListener { modeMenu.show() }
-        binding.ledColorWrapButton.setOnClickListener { colorMenu.show() }
+        binding.modeButton.setOnClickListener { modeMenu.show() }
+        binding.colorModeButton.setOnClickListener { colorMenu.show() }
 
         binding.ledSendButton.setOnClickListener{
             sendColorData()
@@ -306,8 +306,8 @@ class FragmentLed : Fragment() {
             sendStateData()
         }
 
-        binding.ledGeneralWrapButton.setOnClickListener {
-            binding.ledGeneralInclude.hostLayout.visibility = when( binding.ledGeneralInclude.hostLayout.visibility )
+        binding.generalButton.setOnClickListener {
+            binding.generalInclude.hostLayout.visibility = when( binding.generalInclude.hostLayout.visibility )
             {
                 View.VISIBLE -> View.GONE
                 View.GONE -> View.VISIBLE

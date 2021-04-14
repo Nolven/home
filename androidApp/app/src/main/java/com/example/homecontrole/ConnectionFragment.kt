@@ -43,8 +43,8 @@ class ConnectionFragment : Fragment() {
     private fun connect()
     {
         binding.statusLabel.text = "Loading"
-        (requireActivity() as MainActivity).mqtt.connect(binding.connectionIp.text.toString(),
-                binding.connectionPort.text.toString(),
+        (requireActivity() as MainActivity).mqtt.connect(binding.ipTextEdit.text.toString(),
+                binding.portTextEdit.text.toString(),
                 this::onConnectionFail)
     }
 
@@ -67,8 +67,8 @@ class ConnectionFragment : Fragment() {
         val text = TextView(requireContext())
         text.text = "${connection.url}:${connection.port}"
         text.setOnClickListener{
-            binding.connectionIp.setText(connection.url)
-            binding.connectionPort.setText(connection.port)
+            binding.ipTextEdit.setText(connection.url)
+            binding.portTextEdit.setText(connection.port)
 
             connect()
         }
@@ -90,8 +90,8 @@ class ConnectionFragment : Fragment() {
         AsyncTask.execute {
             if( !(requireActivity() as MainActivity).connectionDao.exists(connection.url, connection.port) )
             {
-                    exisits = false
-                    (requireActivity() as MainActivity).connectionDao.insert(connection)
+                exisits = false
+                (requireActivity() as MainActivity).connectionDao.insert(connection)
             }
         }
         if( !exisits ) // TODO shitty but i'm tired
@@ -130,7 +130,7 @@ class ConnectionFragment : Fragment() {
             else
             {
                 // TODO change to modelView as big boiiiiiiiiiiiiiiiiiiiiii
-                val con = ConnectionEntity(binding.connectionIp.text.toString(), binding.connectionPort.text.toString())
+                val con = ConnectionEntity(binding.ipTextEdit.text.toString(), binding.portTextEdit.text.toString())
                 addConnection(con)
                 // TODO add loading wheel or something
                 connect()

@@ -49,29 +49,29 @@
 
             <!--General part-->
             <Button
-                android:id="@+id/led_general_wrap_button"
+                android:id="@+id/general_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_general_label"/>
             <include
-                android:id="@+id/led_general_include"
+                android:id="@+id/general_include"
                 layout="@layout/led_general"
                 android:visibility="gone"/>
 
             <!--Mode part-->
             <Button
-                android:id="@+id/led_mode_wrap_button"
+                android:id="@+id/mode_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_mode_label"/>
             <include
                 layout="@layout/led_mode_snake"
-                android:id="@+id/led_mode_snake_include"
+                android:id="@+id/mode_snake_include"
                 android:visibility="gone"/>
 
             <!--Color part-->
             <Button
-                android:id="@+id/led_color_wrap_button"
+                android:id="@+id/color_mode_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/led_color_label"/>
@@ -87,7 +87,6 @@
                 layout="@layout/led_color_static"
                 android:id="@+id/led_color_static_include"
                 android:visibility="gone"/>
-
         </LinearLayout>
     </ScrollView>
 

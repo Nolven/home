@@ -11,7 +11,7 @@
         style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/led_zone_start"
+            android:id="@+id/zoneStart_textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -24,7 +24,7 @@
         style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/led_zone_end"
+            android:id="@+id/zoneEnd_textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -37,7 +37,7 @@
         style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/led_zone_brightness"
+            android:id="@+id/brightness_textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"

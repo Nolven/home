@@ -13,7 +13,7 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/connection_ip"
+            android:id="@+id/ip_textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:digits="0123456789."
@@ -28,7 +28,7 @@
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/connection_port"
+            android:id="@+id/port_textEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="number"
@@ -66,6 +66,5 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
     </LinearLayout>
 </LinearLayout>
