@@ -1,7 +1,6 @@
 package com.example.homecontrole
 
 import android.Manifest
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +13,7 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.homecontrole.databinding.FragmentConnectionBinding
 
 class ConnectionFragment : Fragment() {
@@ -52,13 +52,6 @@ class ConnectionFragment : Fragment() {
         binding.statusLabel.text = reason
     }
 
-    private fun loadConnectionsFromDb(v: View)
-    {
-        binding.connectionsHolder.removeAllViews()
-        val connections = (requireActivity() as MainActivity).connectionDao.getAll()
-        connections.forEach{ showConnection(it) }
-    }
-
     private fun showConnection(connection: ConnectionEntity)
     {
         val ll = LinearLayout(requireContext())
@@ -77,34 +70,17 @@ class ConnectionFragment : Fragment() {
 
         val closeButton = Button(requireContext())
         closeButton.text = "Remove" // change to icon
-        closeButton.setOnClickListener { removeConnection(connection, ll) }
+        closeButton.setOnClickListener {
+            model.remove(connection)
+            binding.connectionsHolder.removeView(ll)
+        }
 
         ll.addView(closeButton)
 
         binding.connectionsHolder.addView(ll)
     }
 
-    private fun addConnection(connection: ConnectionEntity)
-    {
-        var exisits = true
-        AsyncTask.execute {
-            if( !(requireActivity() as MainActivity).connectionDao.exists(connection.url, connection.port) )
-            {
-                exisits = false
-                (requireActivity() as MainActivity).connectionDao.insert(connection)
-            }
-        }
-        if( !exisits ) // TODO shitty but i'm tired
-            showConnection(connection)
-    }
-
-    // from db as well
-    private fun removeConnection(connection: ConnectionEntity, ll: LinearLayout)
-    {
-        AsyncTask.execute { (requireActivity() as MainActivity).connectionDao.delete(connection) }
-        binding.connectionsHolder.removeView(ll)
-    }
-
+    private lateinit var model: ConnectionViewModel
     private var _binding: FragmentConnectionBinding? = null
     private val binding get() = _binding!!
 
@@ -116,7 +92,13 @@ class ConnectionFragment : Fragment() {
         _binding = FragmentConnectionBinding.inflate(inflater, container, false)
         val view = binding.root
 
-        AsyncTask.execute{loadConnectionsFromDb(view)}
+        // TODO change to injection
+        model = ConnectionViewModelFactory(ConnectionRepository(ConnectionDatabase.getInstance(requireContext()).connectionDao())).create(ConnectionViewModel::class.java)
+
+        model.connections.observe(viewLifecycleOwner, { notIt ->
+            binding.connectionsHolder.removeAllViews()
+            notIt.forEach{ showConnection(it) }
+        })
 
         binding.connectButton.setOnClickListener {
             if( !havePermissions() )
@@ -129,9 +111,7 @@ class ConnectionFragment : Fragment() {
             }
             else
             {
-                // TODO change to modelView as big boiiiiiiiiiiiiiiiiiiiiii
-                val con = ConnectionEntity(binding.ipTextEdit.text.toString(), binding.portTextEdit.text.toString())
-                addConnection(con)
+                model.insert(ConnectionEntity(binding.ipTextEdit.text.toString(), binding.portTextEdit.text.toString()))
                 // TODO add loading wheel or something
                 connect()
             }

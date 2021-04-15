@@ -63,7 +63,7 @@ class FragmentLed : Fragment() {
 
     private val generalData = GeneralData(0,0,255)
 
-    private fun setupMenus(v: View)
+    private fun setupMenus()
     {
         //Color menu
         colorMenu.inflate(R.menu.led_color_mode)
@@ -187,7 +187,7 @@ class FragmentLed : Fragment() {
         // Create menus
         colorMenu = PopupMenu(requireContext(), binding.colorModeButton)
         modeMenu = PopupMenu(requireContext(), binding.modeButton)
-        setupMenus(view)
+        setupMenus()
 
         gradient = Gradient(binding.ledColorGradientInclude, requireContext())
 
@@ -243,7 +243,7 @@ class FragmentLed : Fragment() {
             it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.zoneSpinner.adapter = it }
 
-        setButtons(view)
+        setButtons()
 
         return view
     }
@@ -297,7 +297,7 @@ class FragmentLed : Fragment() {
         })
     }
 
-    private fun setButtons(v: View)
+    private fun setButtons()
     {
         binding.modeButton.setOnClickListener { modeMenu.show() }
         binding.colorModeButton.setOnClickListener { colorMenu.show() }

@@ -6,16 +6,13 @@ import android.util.Log
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
-import androidx.room.Room
 import com.example.homecontrole.databinding.ActivityMainBinding
 import com.example.homecontrole.led.FragmentLed
 
 class MainActivity : AppCompatActivity() {
 
-    // TODO move modelView
+    // TODO move to repository
     lateinit var mqtt: MqttClient
-    lateinit var connectionDb: ConnectionDatabase
-    lateinit var connectionDao: ConnectionDao
 
     // Callback function for mqtt connection establishment
     private fun onConnect()
@@ -44,12 +41,6 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
-
-        // Load db
-        connectionDb = Room.databaseBuilder(
-            applicationContext,
-            ConnectionDatabase::class.java, "connections").build()
-        connectionDao = connectionDb.connectionDao()
 
         // Setup mqtt client
         mqtt = MqttClient(applicationContext)
