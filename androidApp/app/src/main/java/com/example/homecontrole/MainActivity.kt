@@ -1,8 +1,10 @@
 package com.example.homecontrole
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
@@ -15,9 +17,15 @@ class MainActivity : AppCompatActivity() {
     lateinit var mqtt: MqttClient
 
     // Callback function for mqtt connection establishment
-    private fun onConnect()
+    private fun onConnect(ip: String, port: String)
     {
-        Log.d("TAG", "CONNECTED")
+        // Save last successful connection
+        with(getPreferences(Context.MODE_PRIVATE).edit())
+        {
+            putString(getString(R.string.pref_key_ip), ip)
+            putString(getString(R.string.pref_key_port), port)
+            apply()
+        }
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         supportFragmentManager.commit {
             replace<FragmentLed>(R.id.fragment_host)
@@ -25,13 +33,18 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Callback function for mqtt disconnect
-    private fun onDisconnect()
+    private fun onDisconnect(cause: String)
     {
-        Log.d("TAG", "DISCONNECTED")
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-        supportFragmentManager.commit {
-            replace<ConnectionFragment>(R.id.fragment_host)
-            setReorderingAllowed(true) }
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        getPreferences(Context.MODE_PRIVATE).also {
+            supportFragmentManager.commit {
+                replace(R.id.fragment_host, ConnectionFragment.newInstance(
+                    it.getString(getString(R.string.pref_key_ip), "")!!,
+                    it.getString(getString(R.string.pref_key_port), "")!!,
+                    cause))
+                setReorderingAllowed(true) }
+        }
     }
 
     private lateinit var binding: ActivityMainBinding
@@ -47,8 +60,8 @@ class MainActivity : AppCompatActivity() {
         mqtt.successCb = this::onConnect
         mqtt.disconnectCb = this::onDisconnect
 
-        // Assume we are disconnected form the server
-        onDisconnect()
+        onDisconnect("")
+
 
         binding.navigationView.setNavigationItemSelectedListener{
             when (it.itemId)

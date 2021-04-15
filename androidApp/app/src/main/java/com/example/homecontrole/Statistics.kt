@@ -8,7 +8,7 @@ import android.view.ViewGroup
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
+private const val PARAM_KEY_IP = "param1"
 private const val ARG_PARAM2 = "param2"
 
 /**
@@ -24,7 +24,7 @@ class Statistics : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
+            param1 = it.getString(PARAM_KEY_IP)
             param2 = it.getString(ARG_PARAM2)
         }
     }
@@ -51,7 +51,7 @@ class Statistics : Fragment() {
         fun newInstance(param1: String, param2: String) =
             Statistics().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
+                    putString(PARAM_KEY_IP, param1)
                     putString(ARG_PARAM2, param2)
                 }
             }

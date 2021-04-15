@@ -13,8 +13,11 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
 import com.example.homecontrole.databinding.FragmentConnectionBinding
+
+private const val PARAM_LABEL = "label"
+private const val PARAM_IP = "ip"
+private const val PARAM_PORT = "port"
 
 class ConnectionFragment : Fragment() {
     private var requestCode = 0
@@ -88,9 +91,16 @@ class ConnectionFragment : Fragment() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?): View {
-
         _binding = FragmentConnectionBinding.inflate(inflater, container, false)
-        val view = binding.root
+
+        arguments?.let {
+            binding.portTextEdit.setText(it.getString(PARAM_PORT))
+            binding.ipTextEdit.setText(it.getString(PARAM_IP))
+            binding.statusLabel.text = it.getString(PARAM_LABEL)
+        }
+
+        if( !binding.portTextEdit.text.isNullOrEmpty() && !binding.ipTextEdit.text.isNullOrEmpty() )
+            connect()
 
         // TODO change to injection
         model = ConnectionViewModelFactory(ConnectionRepository(ConnectionDatabase.getInstance(requireContext()).connectionDao())).create(ConnectionViewModel::class.java)
@@ -117,6 +127,18 @@ class ConnectionFragment : Fragment() {
             }
         }
 
-        return view
+        return binding.root
+    }
+
+    companion object {
+        @JvmStatic
+        fun newInstance(ip: String, port: String, label: String) =
+            ConnectionFragment().apply {
+                arguments = Bundle().apply {
+                    putString(PARAM_IP, ip)
+                    putString(PARAM_PORT, port)
+                    putString(PARAM_LABEL, label)
+                }
+            }
     }
 }

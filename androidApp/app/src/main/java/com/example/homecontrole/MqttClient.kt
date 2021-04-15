@@ -8,8 +8,8 @@ import org.eclipse.paho.client.mqttv3.*
 open class MqttClient(private val context: Context) {
     lateinit var client: MqttAndroidClient
     private val logTag = "MqttClient"
-    lateinit var successCb: () -> Unit
-    lateinit var disconnectCb: () -> Unit
+    lateinit var successCb: (String, String) -> Unit
+    lateinit var disconnectCb: (String) -> Unit
 
     fun publish(topic: String,
                 msg: String,
@@ -30,7 +30,7 @@ open class MqttClient(private val context: Context) {
     {
         client.setCallback(object : MqttCallbackExtended {
             override fun connectionLost(cause: Throwable?) {
-                disconnectCb()
+                disconnectCb(cause.toString())
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
@@ -67,7 +67,7 @@ open class MqttClient(private val context: Context) {
                 // Subscribe on success
                 client.subscribe(R.string.room_led_input_topic.toString(), 1, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken?) {
-                        successCb()
+                        successCb(server, port)
                     }
 
                     override fun onFailure(asyncActionToken: IMqttToken?, exception: Throwable?) {

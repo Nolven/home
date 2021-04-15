@@ -42,6 +42,9 @@
     <string name="led_brightness">Brightness</string>
     <string name="gradient_remove_color_hint">Remove color</string>
 
+    <string name="pref_key_ip">ip</string>
+    <string name="pref_key_port">port</string>
+
     <string-array name="led_modes">
         <item>Snake</item>
         <item>Static</item>
