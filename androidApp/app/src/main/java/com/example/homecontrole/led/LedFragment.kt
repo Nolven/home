@@ -22,6 +22,7 @@ import com.example.homecontrole.databinding.LedGeneralBinding
 import com.example.homecontrole.databinding.LedModeSnakeBinding
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
+import com.google.android.material.slider.Slider
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -164,15 +165,12 @@ class FragmentLed : Fragment() {
 
     private fun sendGeneralData()
     {
-        if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
-        {
-            val json = JsonObject()
-            json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
-            json.add("general", Gson().toJsonTree(generalData))
-            Log.d("General", json.toString())
-            // TODO change topic name for the room spinner value
-            (requireActivity() as MainActivity).mqtt.publish("abc", json.toString())
-        }
+        val json = JsonObject()
+        json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
+        json.add("general", Gson().toJsonTree(generalData))
+        Log.d("General", json.toString())
+        // TODO change topic name for the room spinner value
+        (requireActivity() as MainActivity).mqtt.publish("abc", json.toString())
     }
 
     private var _binding: FragmentLedBinding? = null
@@ -193,6 +191,10 @@ class FragmentLed : Fragment() {
 
         setSnakeChangeListener(binding.modeSnakeInclude)
         setGeneralChangeListener(binding.generalInclude)
+        binding.brightnessSlider.addOnChangeListener{ slider, value, _ ->
+            generalData.brightness = value.toInt()
+        }
+
 
         val colorButton: Button =  binding.ledColorStaticInclude.colorButton
         colorButton.setBackgroundColor(Color.rgb(
@@ -287,14 +289,6 @@ class FragmentLed : Fragment() {
                 if( s.toString().isNotEmpty())
                     generalData.end = parseInt(s.toString()) }
         })
-
-        binding.brightnessTextEdit.addTextChangedListener( object: TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if( s.toString().isNotEmpty())
-                    generalData.brightness = parseInt(s.toString()) }
-        })
     }
 
     private fun setButtons()
@@ -311,7 +305,7 @@ class FragmentLed : Fragment() {
         binding.generalButton.setOnClickListener {
             binding.generalInclude.hostLayout.visibility = when( binding.generalInclude.hostLayout.visibility )
             {
-                View.VISIBLE -> View.GONE
+                View.VISIBLE -> { generalData.start = 0; generalData.end = 0; View.GONE }
                 View.GONE -> View.VISIBLE
                 else -> throw IllegalStateException()
             }
