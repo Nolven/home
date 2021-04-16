@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ConnectionFragment">
+    tools:context=".connection.ConnectionFragment">
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"

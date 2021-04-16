@@ -1,4 +1,4 @@
-package com.example.homecontrole
+package com.example.homecontrole.connection
 
 import android.content.Context
 import androidx.room.*

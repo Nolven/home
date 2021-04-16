@@ -5,20 +5,47 @@
 
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
-constexpr size_t numberOfLeds = 150;
-constexpr byte dataPin = 7;
 
+//it's good to have some excess memory
+namespace Contracts{
+    // Msg type
+    constexpr byte generalMsg = 0;
+    constexpr byte colorMsg = 1;
+    constexpr byte modeMsg = 2;
 
-CRGB leds[numberOfLeds];
+    // Color mode
+    constexpr byte staticColor = 0;
+    constexpr byte gradColor = 1;
+    constexpr byte rndColor = 2;
 
-constexpr uint8_t numberOfZones = 10;
-Zone zones[numberOfZones];
+    //State ?mode?
+    constexpr byte staticState = 0;
+    constexpr byte snakeState = 1;
+}
+
+namespace Configs{
+    // Serial
+    constexpr uint16_t baudRate = 2400;
+    constexpr byte timeout = 20;
+
+    // Led
+    constexpr size_t initDelay = 2000;
+    constexpr size_t numberOfLeds = 150;
+    constexpr byte dataPin = 7;
+    constexpr byte zonesNumber = 10;
+}
+
+CRGB leds[Configs::numberOfLeds];
+Zone zones[Configs::zonesNumber];
+
+// Board reset
+void (* reset)() = nullptr;
 
 void setup() {
-    delay(2000); // initial delay of a few seconds is recommended
-    CFastLED::addLeds<LED_TYPE,dataPin,COLOR_ORDER>(leds, numberOfLeds).setCorrection(TypicalLEDStrip); // initializes LED strip
-    Serial.begin(2400);
-    Serial.setTimeout(20);
+    delay(Configs::initDelay); // initial delay of a few seconds is recommended
+    CFastLED::addLeds<LED_TYPE,Configs::dataPin,COLOR_ORDER>(leds, Configs::numberOfLeds).setCorrection(TypicalLEDStrip); // initializes LED strip
+    Serial.begin(Configs::baudRate);
+    Serial.setTimeout(Configs::timeout);
 
     //======
 
@@ -39,8 +66,8 @@ void setup() {
  * Read
  * 1. Incoming msg size
  * 2. Main header (zone number, msg_type)
- * 3. Msg type (general - 0, color - 1, mode - 2)
- * 4. Mode for specific msg (clr/grdnt/rnd for color, static/snake)
+ * 3. Msg type
+ * 4. Mode for specific msg
  * 5. Msg body
  */
 void serialEvent() {
@@ -48,52 +75,44 @@ void serialEvent() {
 
     if (Serial.available())
     {
+        // Receive incoming msg size
         if( !nextMsgSize )
-            nextMsgSize = Serial.read(); // Msg size
+        {
+            nextMsgSize = Serial.read();
+            if( !nextMsgSize ) reset(); // 0 is for board reset
+        }
 
         if( Serial.available() >= nextMsgSize )
         {
-            Serial.write(Serial.available()); // Gonna use it as ack that msg been received
-
             byte buffer[nextMsgSize];
             Serial.readBytes(buffer, nextMsgSize);
             nextMsgSize = 0;
 
             byte zone = buffer[1];
 
-            /**
-             * Msg_types:
-             * 0 - general msg consists of header
-             * 1 - color mode
-             * 2 - state mode
-             */
             switch (buffer[0])
             {
-                case 0:
+                case Contracts::generalMsg:
                 {
-                    zones[zone].setRange((uint16_t)buffer[3] | ((uint16_t)buffer[2] << 8),
-                                         (uint16_t)buffer[5] | ((uint16_t)buffer[4]) << 8);
+                    // if zone start == end == 0, skip setting zone start or end
+                    if( buffer[2] || buffer[3] || buffer[4] || buffer [5] )
+                        zones[zone].setRange((uint16_t)buffer[3] | ((uint16_t)buffer[2] << 8),
+                                            (uint16_t)buffer[5] | ((uint16_t)buffer[4]) << 8);
                     zones[zone].brightness = buffer[6];
                     break;
                 }
 
-                case 1:
-                    /**
-                     * Color modes:
-                     * 0 - static
-                     * 1 - gradient
-                     * 2 - random
-                     */
+                case Contracts::colorMsg:
                     switch (buffer[2]) // read color mode
                     {
-                        case 0:
+                        case Contracts::staticColor:
                             zones[zone].colorMode = ColorMode::COL;
                             zones[zone].color = CRGB{buffer[3],  // R
                                                      buffer[4],  // G
                                                      buffer[5]}; // B
                             break;
 
-                        case 1:
+                        case Contracts::gradColor:
                         {
                             zones[zone].colorMode = ColorMode::GRAD;
                             zones[zone].blending = static_cast<TBlendType>(buffer[3]);
@@ -115,29 +134,25 @@ void serialEvent() {
                             }
                             break;
                         }
-                        case 2:
+                        case Contracts::rndColor:
                             zones[zone].colorMode = ColorMode::RND;
                             zones[zone].delay = buffer[3];
                             break;
 
                         default:
-                            Serial.write(-1);
+                            reset();
                             break;
                     }
                     break;
 
-                case 2:
-                 /** Show mode:
-                  * 0 - static
-                  * 1 - snake
-                  */
+                case Contracts::modeMsg:
                     switch (buffer[2]) // read state mode
                     {
-                        case 0:
+                        case Contracts::staticState:
                             zones[zone].mode = Mode::STATIC;
                             break;
 
-                        case 1:
+                        case Contracts::snakeState:
                             zones[zone].mode = Mode::SNAKE;
                             zones[zone].direction = (int)buffer[3];
 
@@ -155,9 +170,12 @@ void serialEvent() {
                     break;
 
                 default:
-                    Serial.write(-1); // TODO error code
+                    reset();
                     break;
             }
+
+            // Ack to the received msg
+            Serial.write(Serial.available());
         }
     }
 }

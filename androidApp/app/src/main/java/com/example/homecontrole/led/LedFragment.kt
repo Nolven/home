@@ -164,7 +164,7 @@ class FragmentLed : Fragment() {
 
     private fun sendGeneralData()
     {
-        if( colorJsonName.isNotEmpty() )
+        if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
         {
             val json = JsonObject()
             json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
@@ -180,7 +180,7 @@ class FragmentLed : Fragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
+                              savedInstanceState: Bundle?): View {
         _binding = FragmentLedBinding.inflate(inflater, container, false)
         val view = binding.root
 

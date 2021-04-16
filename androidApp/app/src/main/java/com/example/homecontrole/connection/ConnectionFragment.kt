@@ -1,4 +1,4 @@
-package com.example.homecontrole
+package com.example.homecontrole.connection
 
 import android.Manifest
 import android.os.Bundle
@@ -13,6 +13,7 @@ import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.fragment.app.Fragment
+import com.example.homecontrole.MainActivity
 import com.example.homecontrole.databinding.FragmentConnectionBinding
 
 private const val PARAM_LABEL = "label"
@@ -103,7 +104,10 @@ class ConnectionFragment : Fragment() {
             connect()
 
         // TODO change to injection
-        model = ConnectionViewModelFactory(ConnectionRepository(ConnectionDatabase.getInstance(requireContext()).connectionDao())).create(ConnectionViewModel::class.java)
+        model = ConnectionViewModelFactory(
+            ConnectionRepository(
+                ConnectionDatabase.getInstance(requireContext()).connectionDao())
+        ).create(ConnectionViewModel::class.java)
 
         model.connections.observe(viewLifecycleOwner, { notIt ->
             binding.connectionsHolder.removeAllViews()

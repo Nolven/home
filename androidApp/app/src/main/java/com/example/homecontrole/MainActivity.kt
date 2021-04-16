@@ -3,11 +3,10 @@ package com.example.homecontrole
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.core.content.edit
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.example.homecontrole.connection.ConnectionFragment
 import com.example.homecontrole.databinding.ActivityMainBinding
 import com.example.homecontrole.led.FragmentLed
 

@@ -26,7 +26,7 @@ open class MqttClient(private val context: Context) {
         }
     }
 
-    fun setCallbacks()
+    private fun setCallbacks()
     {
         client.setCallback(object : MqttCallbackExtended {
             override fun connectionLost(cause: Throwable?) {

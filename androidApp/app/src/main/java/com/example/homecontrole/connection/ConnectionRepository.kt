@@ -1,11 +1,12 @@
-package com.example.homecontrole
+package com.example.homecontrole.connection
 
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 class ConnectionRepository constructor(
-    private val dao: ConnectionDao)  {
+    private val dao: ConnectionDao
+)  {
 
     val allConnections: Flow<List<ConnectionEntity>> = dao.getAll()
 
