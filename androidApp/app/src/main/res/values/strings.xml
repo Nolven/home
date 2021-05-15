@@ -55,10 +55,6 @@
         <item>LinearBlending</item>
     </string-array>
 
-    <string-array name="room_names">
-        <item>Hallway</item>
-    </string-array>
-
     <!--Order is important (idk better way to do it)-->
     <string-array name="room_topics">
         <item>abc</item>

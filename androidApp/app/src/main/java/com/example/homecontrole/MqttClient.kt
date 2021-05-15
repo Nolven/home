@@ -65,7 +65,7 @@ open class MqttClient(private val context: Context) {
             object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 // Subscribe on success
-                client.subscribe(R.string.room_led_input_topic.toString(), 1, null, object : IMqttActionListener {
+                client.subscribe("123", 1, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken?) {
                         successCb(server, port)
                     }

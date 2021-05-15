@@ -54,25 +54,23 @@ class FragmentLed : Fragment() {
     // Color data
     private lateinit var gradient: Gradient
     private var staticColorData: StaticColorData = StaticColorData(255, 0, 255)
-    private var colorDataFunction: () -> JsonElement = {JsonPrimitive("")}
+    private var colorDataFunction: () -> JsonElement = { JsonPrimitive("") }
     private var colorJsonName: String = ""
 
     // Mode data
     private var modeJsonName: String = ""
-    private var modeDataFunction: () -> JsonElement = {JsonPrimitive("")}
+    private var modeDataFunction: () -> JsonElement = { JsonPrimitive("") }
     private val snakeStateData = SnakeData(0, 0, true, 0)
 
-    private val generalData = GeneralData(0,0,255)
+    private val generalData = GeneralData(0, 0, 255)
 
-    private fun setupMenus()
-    {
+    private fun setupMenus() {
         //Color menu
         colorMenu.inflate(R.menu.led_color_mode)
         colorMenu.setOnMenuItemClickListener {
             it.isChecked = true
             binding.colorModeButton.text = it.title
-            when( it.itemId )
-            {
+            when (it.itemId) {
                 R.id.static_color -> {
                     binding.ledColorStaticInclude.hostLayout.visibility = View.VISIBLE
                     binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
@@ -88,7 +86,8 @@ class FragmentLed : Fragment() {
 
                     colorDataFunction = {
                         val o = JsonObject()
-                        o.addProperty("delay", parseInt(binding.ledColorRandomInclude.colorRandomDelay.text.toString()))
+                        val t = binding.ledColorRandomInclude.colorRandomDelay.text.toString()
+                        o.addProperty("delay", if(t.isNotEmpty()) parseInt(t) else 0)
                         o
                     }
                     colorJsonName = "rnd_color"
@@ -116,8 +115,7 @@ class FragmentLed : Fragment() {
         modeMenu.setOnMenuItemClickListener {
             it.isChecked = true
             binding.modeButton.text = it.title
-            when( it.itemId )
-            {
+            when (it.itemId) {
                 R.id.snake_state -> {
                     binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
                     modeJsonName = "snake_state"
@@ -137,6 +135,11 @@ class FragmentLed : Fragment() {
         }
     }
 
+    private fun sendData(json: String)
+    {
+        (requireActivity() as MainActivity).mqtt.publish(binding.roomSpinner.selectedItem.toString() + "/" + getString(R.string.led_topic), json)
+    }
+
     // Move to one method
     private fun sendColorData(){
         if( colorJsonName.isNotEmpty() )
@@ -145,8 +148,7 @@ class FragmentLed : Fragment() {
             json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
             json.add(colorJsonName, colorDataFunction())
             Log.d("Color", json.toString())
-            // TODO change topic name for the room spinner value
-            (requireActivity() as MainActivity).mqtt.publish("abc", json.toString())
+            sendData(json.toString())
         }
     }
 
@@ -158,8 +160,7 @@ class FragmentLed : Fragment() {
             json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
             json.add(modeJsonName, modeDataFunction())
             Log.d("State", json.toString())
-            // TODO change topic name for the room spinner value
-            (requireActivity() as MainActivity).mqtt.publish("abc", json.toString())
+            sendData(json.toString())
         }
     }
 
@@ -169,8 +170,7 @@ class FragmentLed : Fragment() {
         json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
         json.add("general", Gson().toJsonTree(generalData))
         Log.d("General", json.toString())
-        // TODO change topic name for the room spinner value
-        (requireActivity() as MainActivity).mqtt.publish("abc", json.toString())
+        sendData(json.toString())
     }
 
     private var _binding: FragmentLedBinding? = null
@@ -310,16 +310,5 @@ class FragmentLed : Fragment() {
                 else -> throw IllegalStateException()
             }
         }
-    }
-
-    companion object {
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-                FragmentLed().apply {
-                    arguments = Bundle().apply {
-                        putString(ARG_PARAM1, param1)
-                        putString(ARG_PARAM2, param2)
-                    }
-                }
     }
 }
