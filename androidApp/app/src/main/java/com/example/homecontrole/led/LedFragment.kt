@@ -77,7 +77,7 @@ class FragmentLed : Fragment() {
                     binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
                     colorDataFunction = { Gson().toJsonTree(staticColorData) }
-                    colorJsonName = "static_color"
+                    colorJsonName = "static"
                 }
                 R.id.random_color -> {
                     binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
@@ -90,7 +90,7 @@ class FragmentLed : Fragment() {
                         o.addProperty("delay", if(t.isNotEmpty()) parseInt(t) else 0)
                         o
                     }
-                    colorJsonName = "rnd_color"
+                    colorJsonName = "random"
                 }
                 R.id.gradient_color -> {
                     binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
@@ -98,7 +98,7 @@ class FragmentLed : Fragment() {
                     binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
                     colorDataFunction = { gradient.getJson() }
-                    colorJsonName = "grad_color"
+                    colorJsonName = "gradient"
                 }
                 R.id.none -> {
                     binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
@@ -118,12 +118,12 @@ class FragmentLed : Fragment() {
             when (it.itemId) {
                 R.id.snake_state -> {
                     binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
-                    modeJsonName = "snake_state"
+                    modeJsonName = "snake"
                     modeDataFunction = { Gson().toJsonTree(snakeStateData) }
                 }
                 R.id.static_state -> {
                     binding.modeSnakeInclude.hostLayout.visibility = View.GONE
-                    modeJsonName = "static_state"
+                    modeJsonName = "static"
                     modeDataFunction = { JsonPrimitive("") }
                 }
                 R.id.none -> {
@@ -141,12 +141,15 @@ class FragmentLed : Fragment() {
     }
 
     // Move to one method
-    private fun sendColorData(){
+    private fun sendColorData()
+    {
         if( colorJsonName.isNotEmpty() )
         {
             val json = JsonObject()
             json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
-            json.add(colorJsonName, colorDataFunction())
+            json.addProperty("color_mode", colorJsonName)
+            json.add("color_data", colorDataFunction())
+
             Log.d("Color", json.toString())
             sendData(json.toString())
         }
@@ -158,7 +161,9 @@ class FragmentLed : Fragment() {
         {
             val json = JsonObject()
             json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
-            json.add(modeJsonName, modeDataFunction())
+            json.addProperty("display_mode", modeJsonName)
+            json.add("display_data", modeDataFunction())
+
             Log.d("State", json.toString())
             sendData(json.toString())
         }
@@ -168,7 +173,8 @@ class FragmentLed : Fragment() {
     {
         val json = JsonObject()
         json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
-        json.add("general", Gson().toJsonTree(generalData))
+        json.add("general_data", Gson().toJsonTree(generalData))
+
         Log.d("General", json.toString())
         sendData(json.toString())
     }
@@ -189,7 +195,7 @@ class FragmentLed : Fragment() {
 
         gradient = Gradient(binding.ledColorGradientInclude, requireContext())
 
-        setSnakeChangeListener(binding.modeSnakeInclude)
+        setSnakeChangeListener(binding.modeSnakeInclude) // TODO non-loop snake with "here" option doesn't work
         setGeneralChangeListener(binding.generalInclude)
         binding.brightnessSlider.addOnChangeListener{ slider, value, _ ->
             generalData.brightness = value.toInt()
