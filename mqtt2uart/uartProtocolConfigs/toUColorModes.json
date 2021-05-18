@@ -1,6 +1,13 @@
 {
   "msg_num": 1,
   "mode": {"byte": 0, "size": 1},
+  "static_color":
+  {
+    "mode_num": 0,
+    "R":     {"byte": 1, "size": 1},
+    "G":     {"byte": 2, "size": 1},
+    "B":     {"byte": 3, "size": 1}
+  },
   "grad_color":
   {
     "mode_num": 1,
@@ -14,12 +21,5 @@
   {
     "mode_num": 2,
     "delay": {"byte": 1, "size": 1}
-  },
-  "static_color":
-  {
-    "mode_num": 0,
-    "R":     {"byte": 1, "size": 1},
-    "G":     {"byte": 2, "size": 1},
-    "B":     {"byte": 3, "size": 1}
   }
 }

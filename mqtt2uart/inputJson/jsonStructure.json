@@ -1,0 +1,15 @@
+{
+  "zone": 1,
+  "general_data":
+  {
+    "start": 1,
+    "end": 2,
+    "brightness": 3
+  },
+
+  "color_mode": "",
+  "color_data": {},
+
+  "display_mode": "",
+  "display_data": {}
+}

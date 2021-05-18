@@ -7,7 +7,7 @@ from uartClient import UartClient
 config: json = {
   "mqtt":
   {
-    "ip": "127.0.0.1",
+    "ip": "192.168.0.15",
     "port": 1883,
     "name": "",
     "transport": "tcp",

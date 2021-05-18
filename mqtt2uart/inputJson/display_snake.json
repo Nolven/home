@@ -1,0 +1,10 @@
+{
+  "display_mode": "snake",
+  "display_data":
+  {
+    "direction": 1,
+    "length": 1,
+    "loop": 1,
+    "delay": 1
+  }
+}

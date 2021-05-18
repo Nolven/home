@@ -61,36 +61,36 @@ class MqttClient(ImqttClinet):
     def _on_message(self, client, userdata, msg):
         input_json = json.loads(msg.payload)
 
-        if "general" in input_json:
-            self._sendJson2Uart(self._general_conf, input_json["general"],
+        if "general_data" in input_json:
+            self._sendJson2Uart(self._general_conf, input_json["general_data"],
                                 self._general_size + self._header_size, "general",
                                 input_json["zone"], {})
 
-        # Color segment
-        if "static_color" in input_json:
-            self._sendJson2Uart(self._color_conf, input_json["static_color"], self._color_static_size + self._header_size, "static_color",
-                                input_json["zone"], {})
+        color_topic = "color_mode"
+        if color_topic in input_json:
+            if input_json[color_topic] == "static":
+                self._sendJson2Uart(self._color_conf, input_json["color_data"],
+                                    self._color_static_size + self._header_size, "static_color",
+                                    input_json["zone"], {})
+            elif input_json[color_topic] == "random":
+                self._sendJson2Uart(self._color_conf, input_json["color_data"],
+                                    self._color_rnd_size + self._header_size, "rnd_color",
+                                    input_json["zone"], {})
+            elif input_json[color_topic] == "gradient":
+                self._sendJson2Uart(self._color_conf, input_json["color_data"],
+                                    self._color_grad_size + self._header_size, "grad_color",
+                                    input_json["zone"], {"colors": "color_number"})
 
-        if "rnd_color" in input_json:
-            self._sendJson2Uart(self._color_conf, input_json["rnd_color"],
-                                self._color_rnd_size + self._header_size, "rnd_color",
-                                input_json["zone"], {})
-
-        if "grad_color" in input_json:  # Currently unusable
-            self._sendJson2Uart(self._color_conf, input_json["grad_color"],
-                                self._color_grad_size + self._header_size, "grad_color",
-                                input_json["zone"], {"colors": "color_number"})
-
-        # State section
-        if "static_state" in input_json:
-            self._sendJson2Uart(self._state_conf, input_json["static_state"],
-                                self._state_static_size + self._header_size, "static_state",
-                                input_json["zone"], {})
-
-        if "snake_state" in input_json:  # Currently unusable
-            self._sendJson2Uart(self._state_conf, input_json["snake_state"],
-                                self._state_snake_size + self._header_size, "snake_state",
-                                input_json["zone"], {})
+        display_topic = "display_mode"
+        if display_topic in input_json:
+            if input_json[display_topic] == "static":
+                self._sendJson2Uart(self._state_conf, {},
+                                    self._state_static_size + self._header_size, "static_state",
+                                    input_json["zone"], {})
+            elif input_json[display_topic] == "snake":
+                self._sendJson2Uart(self._state_conf, input_json["display_data"],
+                                    self._state_snake_size + self._header_size, "snake_state",
+                                    input_json["zone"], {})
 
     def _on_subscribe(self, mosq, obj, mid, granted_qos):
         if granted_qos == 128:

@@ -30,7 +30,7 @@ namespace Configs{
 
     // Led
     constexpr size_t initDelay = 2000;
-    constexpr size_t numberOfLeds = 150;
+    constexpr size_t numberOfLeds = 250;
     constexpr byte dataPin = 7;
     constexpr byte zonesNumber = 10;
 }
@@ -50,7 +50,7 @@ void setup() {
     //======
 
     zones[0].start = 0;
-    zones[0].end = 150;
+    zones[0].end = Configs::numberOfLeds;
 
     zones[0].colorMode = ColorMode::GRAD;
     zones[0].gradientSpeed = 1;
