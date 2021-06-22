@@ -1,4 +1,5 @@
 import json
+import math
 import sys
 import datetime
 import threading
@@ -11,16 +12,32 @@ from collections import OrderedDict
 import paho.mqtt.client as mqtt
 from scipy.interpolate import interp1d
 
+json_example = {
+  "day": "22",
+  "month": "6",
+  "year": "2021",
+  "hour": "10",
+  "minute": "8",
+  "duration_minutes": "30",
+  "curvature": {
+      "0": 0,
+      "5": 15,
+      "15": 40,
+      "39": 90
+  },
+  "color": [255, 255, 255]
+}
+
 '''
 {
-    day: "",
-    month: ""
-    year: "",
-    hour: "",
-    minute: "",
-    duration_minutes: "",
-    curvature: "", percentage / time
-    color: ""
+    "day": "",
+    "month": "",
+    "year": "",
+    "hour": "",
+    "minute": "",
+    "duration_minutes": "",
+    "curvature": "",
+    "color": ""
 }
 '''
 
@@ -32,7 +49,7 @@ config: json = {
     "password": "",
     "in_topic": "abc",
     "out_topic": "cba",
-    "brightness_time_step_sec": 1
+    "brightness_time_step_sec": 5
 }
 
 times: OrderedDict = OrderedDict()
@@ -45,18 +62,18 @@ def set_up_led(color: []):
     mqtt.send(json.dumps({
         "zone": 0,
         "general_data":
-        {
-            "start": 0,
-            "end": 255,
-            "brightness": 0
-        },
+            {
+                "start": 0,
+                "end": 255,
+                "brightness": 0
+            },
         "color_mode": "static",
         "color_data":
-        {
-            "R": color[0],
-            "G": color[1],
-            "B": color[2]
-        }
+            {
+                "R": color[0],
+                "G": color[1],
+                "B": color[2]
+            }
     }))
 
 
@@ -64,25 +81,25 @@ def send_to_led(brightness: int):
     mqtt.send(json.dumps({
         "zone": 0,
         "general_data":
-        {
-            "start": 0,
-            "end": 0,
-            "brightness": brightness
-        }
+            {
+                "start": 0,
+                "end": 0,
+                "brightness": brightness
+            }
     }))
 
 
 def fire(alarm_params: json):
     in_time_points = []
     in_brightnesses = []
-    for key, item in alarm_params["curvature"].iteritems():
+    for key, item in alarm_params["curvature"].items():
         in_time_points.append(int(key))
         in_brightnesses.append(int(item))
 
     # Probably could do it on alarm receive
-    interpolation = interp1d(in_time_points, in_brightnesses)
-    time_points = np.linspace(0, alarm_params["duration_minutes"],
-                              alarm_params["duration_minutes"] * 60 / config["brightness_time_step_sec"])
+    interpolation = interp1d(in_time_points, in_brightnesses, fill_value="extrapolate")
+    time_points = np.linspace(start=0, stop=int(alarm_params["duration_minutes"])*60,
+                              num=math.ceil(int(alarm_params["duration_minutes"]) * 60 / int(config["brightness_time_step_sec"])))
     brightnesses = interpolation(time_points)
 
     set_up_led(alarm_params["color"])
@@ -93,9 +110,10 @@ def fire(alarm_params: json):
 
 def time_check():
     while True:
-        if list(times.items())[0] >= datetime.datetime.now():
-            fire(list(times.items())[0])
-            times.pop(list(times.items())[0])
+        if bool(times):
+            if list(times.items())[0][0] <= datetime.datetime.now():
+                fire(list(times.items())[0][1])
+                times.pop(list(times.items())[0][0])
 
 
 class MqttClient:
@@ -116,13 +134,16 @@ class MqttClient:
     def _on_message(self, client, userdata, msg):
         input_json = json.loads(msg.payload)
         times[datetime.datetime(
-            day=input_json["day"],
-            month=input_json["month"],
-            year=input_json["year"],
-            minute=input_json["minute"],
-            hour=input_json["hour"]
-        ) - datetime.timedelta(minutes=input_json["duration_minutes"])] = {input_json["color"], input_json["curvature"],
-                                                                           input_json["duration"]}
+            day=int(input_json["day"]),
+            month=int(input_json["month"]),
+            year=int(input_json["year"]),
+            minute=int(input_json["minute"]),
+            hour=int(input_json["hour"])
+        ) - datetime.timedelta(minutes=int(input_json["duration_minutes"]))] = {"color": input_json["color"],
+                                                                                "curvature": input_json["curvature"],
+                                                                                "duration_minutes": input_json[
+                                                                                    "duration_minutes"]
+                                                                                }
 
     def _on_subscribe(self, mosq, obj, mid, granted_qos):
         if granted_qos == 128:
@@ -144,7 +165,9 @@ class MqttClient:
 
 
 if __name__ == '__main__':
-    mqtt = MqttClient(config["mqtt"])
+    mqtt: MqttClient = MqttClient(config)
     mqtt.start()
 
-    threading.Thread(target=time_check).join()
+    checker = threading.Thread(target=time_check)
+    checker.start()
+    checker.join()
