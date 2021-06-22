@@ -18,7 +18,7 @@ json_example = {
   "year": "2021",
   "hour": "10",
   "minute": "8",
-  "duration_minutes": "30",
+  "duration_minutes": 30,
   "curvature": {
       "0": 0,
       "5": 15,
@@ -28,19 +28,6 @@ json_example = {
   "color": [255, 255, 255]
 }
 
-'''
-{
-    "day": "",
-    "month": "",
-    "year": "",
-    "hour": "",
-    "minute": "",
-    "duration_minutes": "",
-    "curvature": "",
-    "color": ""
-}
-'''
-
 config: json = {
     "ip": "192.168.0.15",
     "port": 1883,
@@ -49,7 +36,7 @@ config: json = {
     "password": "",
     "in_topic": "abc",
     "out_topic": "cba",
-    "brightness_time_step_sec": 5
+    "brightness_time_step_sec": 1
 }
 
 times: OrderedDict = OrderedDict()
@@ -77,7 +64,7 @@ def set_up_led(color: []):
     }))
 
 
-def send_to_led(brightness: int):
+def update_brightness(brightness: int):
     mqtt.send(json.dumps({
         "zone": 0,
         "general_data":
@@ -93,18 +80,18 @@ def fire(alarm_params: json):
     in_time_points = []
     in_brightnesses = []
     for key, item in alarm_params["curvature"].items():
-        in_time_points.append(int(key))
+        in_time_points.append(int(key) * 60)
         in_brightnesses.append(int(item))
 
     # Probably could do it on alarm receive
     interpolation = interp1d(in_time_points, in_brightnesses, fill_value="extrapolate")
-    time_points = np.linspace(start=0, stop=int(alarm_params["duration_minutes"])*60,
+    time_points = np.linspace(start=0, stop=int(alarm_params["duration_minutes"]) * 60,
                               num=math.ceil(int(alarm_params["duration_minutes"]) * 60 / int(config["brightness_time_step_sec"])))
     brightnesses = interpolation(time_points)
 
     set_up_led(alarm_params["color"])
-    for point, in_brightnesses in zip(time_points, brightnesses):
-        send_to_led(in_brightnesses)
+    for point, brightness in zip(time_points, brightnesses):
+        update_brightness(math.ceil(brightness))
         time.sleep(point)
 
 
