@@ -44,6 +44,9 @@
 
     <string name="pref_key_ip">ip</string>
     <string name="pref_key_port">port</string>
+    <string name="temperature_label">Temperature (C):</string>
+    <string name="humidity_label">Humidity (%):</string>
+    <string name="co2_label">CO2 (ppm):</string>
 
     <string-array name="led_modes">
         <item>Snake</item>

@@ -9,6 +9,7 @@ import androidx.fragment.app.replace
 import com.example.homecontrole.connection.ConnectionFragment
 import com.example.homecontrole.databinding.ActivityMainBinding
 import com.example.homecontrole.led.FragmentLed
+import com.example.homecontrole.statistics.Statistics
 
 class MainActivity : AppCompatActivity() {
 

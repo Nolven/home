@@ -2,14 +2,20 @@ package com.example.homecontrole
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import com.google.gson.JsonParser
 import org.eclipse.paho.android.service.MqttAndroidClient
 import org.eclipse.paho.client.mqttv3.*
+import kotlin.math.log
 
 open class MqttClient(private val context: Context) {
     lateinit var client: MqttAndroidClient
     private val logTag = "MqttClient"
     lateinit var successCb: (String, String) -> Unit
     lateinit var disconnectCb: (String) -> Unit
+    var airStats: MutableLiveData<JsonObject> = MutableLiveData()
 
     fun publish(topic: String,
                 msg: String,
@@ -34,6 +40,17 @@ open class MqttClient(private val context: Context) {
             }
 
             override fun messageArrived(topic: String?, message: MqttMessage?) {
+                Log.d(logTag, "Mqtt message receive from $topic")
+                when(topic){
+                    "air" -> {
+//                        Log.d(logTag,
+//                            JsonParser.parseString(message!!.payload.toString()).asJsonObject.toString()
+//                        )
+                        if (message != null) {
+                            airStats.value = JsonParser.parseString(String(message.payload)).asJsonObject
+                        }
+                    }
+                }
                 Log.d(logTag, "Message arrived")
             }
 
@@ -65,7 +82,7 @@ open class MqttClient(private val context: Context) {
             object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 // Subscribe on success
-                client.subscribe("123", 1, null, object : IMqttActionListener {
+                client.subscribe("air", 1, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken?) {
                         successCb(server, port)
                     }
