@@ -1,66 +1,37 @@
 #include "Arduino.h"
+#include "Wire.h"
 #include "FastLED.h"
 
 #include "Zone.hpp"
 
+#define LED_NUM 250
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
+#define DATA_PIN 7
+#define ZONE_NUM 10
 
-//it's good to have some excess memory
-namespace Contracts{
-    // Msg type
-    constexpr byte generalMsg = 0;
-    constexpr byte colorMsg = 1;
-    constexpr byte modeMsg = 2;
+#define INIT_DELAY 2000
+#define ADDRESS 0x69
+#define CLOCK_SPD 400000
 
-    // Color mode
-    constexpr byte staticColor = 0;
-    constexpr byte gradColor = 1;
-    constexpr byte rndColor = 2;
+//==================
 
-    //State ?mode?
-    constexpr byte staticState = 0;
-    constexpr byte snakeState = 1;
-}
+#define MSG_GEN 0
+#define MSG_COL 1
+#define MSG_MOD 2
 
-namespace Configs{
-    // Serial
-    constexpr uint16_t baudRate = 2400;
-    constexpr byte timeout = 20;
+#define COL_STATIC 0
+#define COL_GRAD 1
+#define COL_RND 2
 
-    // Led
-    constexpr size_t initDelay = 2000;
-    constexpr size_t numberOfLeds = 250;
-    constexpr byte dataPin = 7;
-    constexpr byte zonesNumber = 10;
-}
+#define STATE_STATIC 0
+#define STATE_SNAKE 1
 
-CRGB leds[Configs::numberOfLeds];
-Zone zones[Configs::zonesNumber];
+CRGB leds[LED_NUM];
+Zone zones[ZONE_NUM];
 
 // Board reset
 void (* reset)() = nullptr;
-
-void setup() {
-    delay(Configs::initDelay); // initial delay of a few seconds is recommended
-    CFastLED::addLeds<LED_TYPE,Configs::dataPin,COLOR_ORDER>(leds, Configs::numberOfLeds).setCorrection(TypicalLEDStrip); // initializes LED strip
-    Serial.begin(Configs::baudRate);
-    Serial.setTimeout(Configs::timeout);
-
-    //======
-
-    zones[0].start = 0;
-    zones[0].end = Configs::numberOfLeds;
-
-    zones[0].colorMode = ColorMode::GRAD;
-    zones[0].gradientSpeed = 1;
-    zones[0].mode = Mode::STATIC;
-    zones[0].color = CRGB::Magenta;
-    zones[0].loop = true;
-    zones[0].brightness = 100;
-    zones[0].sStart = 40;
-    zones[0].sEnd = 100;
-}
 
 /*
  * Read
@@ -70,114 +41,131 @@ void setup() {
  * 4. Mode for specific msg
  * 5. Msg body
  */
-void serialEvent() {
-    static uint8_t nextMsgSize = 0; // 0 means that msg size is not received yet
+void receiveEvent(int size) {
+    // I don't have a single fucking idea why
+    // But arduino receives (or smbus2 on OPI L sends) 2 additional bytes
+    // One with idk what
+    // Second with actual data size
+    // So i must put 2 additional Wire.read() to avoid major function changes
+    // FUCK THIS
+    /*byte fuck[2];
+    Wire.readBytes(fuck,2);*/
+    // OH NFUCKINGM, THIS SCHEISSE DROPS THE BOARD
+    // so i actually must add an offset of 2 -_-
+    // will do through pointer
 
-    if (Serial.available())
+    byte* buffer = (byte*)malloc(size + 2); // yay, it works. Kill me
+    Wire.readBytes(buffer, size);
+    buffer = buffer + 2;
+
+    Zone& zone = zones[buffer[1]];
+    switch (buffer[0])
     {
-        // Receive incoming msg size
-        if( !nextMsgSize )
+        case MSG_GEN:
         {
-            nextMsgSize = Serial.read();
-            if( !nextMsgSize ) reset(); // 0 is for board reset
+            // if zone start == end == 0, skip setting zone start or end
+            if( buffer[2] || buffer[3] || buffer[4] || buffer [5] )
+                zone.setRange((uint16_t)buffer[3] | ((uint16_t)buffer[2] << 8),
+                                     (uint16_t)buffer[5] | ((uint16_t)buffer[4]) << 8);
+            zone.brightness = buffer[6];
+            break;
         }
 
-        if( Serial.available() >= nextMsgSize )
-        {
-            byte buffer[nextMsgSize];
-            Serial.readBytes(buffer, nextMsgSize);
-            nextMsgSize = 0;
-
-            byte zone = buffer[1];
-
-            switch (buffer[0])
+        case MSG_COL:
+            switch (buffer[2]) // read color mode
             {
-                case Contracts::generalMsg:
+                case COL_STATIC:
+                    zone.colorMode = ColorMode::COL;
+                    zone.color = CRGB{buffer[3],  // R
+                                             buffer[4],  // G
+                                             buffer[5]}; // B
+                    break;
+
+                case COL_GRAD:
                 {
-                    // if zone start == end == 0, skip setting zone start or end
-                    if( buffer[2] || buffer[3] || buffer[4] || buffer [5] )
-                        zones[zone].setRange((uint16_t)buffer[3] | ((uint16_t)buffer[2] << 8),
-                                            (uint16_t)buffer[5] | ((uint16_t)buffer[4]) << 8);
-                    zones[zone].brightness = buffer[6];
+                    zone.colorMode = ColorMode::GRAD;
+                    zone.blending = static_cast<TBlendType>(buffer[3]);
+                    zone.gradientSpeed = buffer[4];
+                    zone.gradientColorStep = buffer[5];
+                    byte bytes[buffer[6] * 4]; // 4 for RGB + index
+
+                    for (byte i = 0; i < buffer[6]; ++i)
+                    {
+                        byte offset = 3 * i;
+
+                        bytes[offset] = floor(255 / double(buffer[6] - 1)) * i; // color index in a palette
+
+                        bytes[1 + offset] = buffer[7 + offset];     // R
+                        bytes[2 + offset] = buffer[7 + offset + 1]; // G
+                        bytes[3 + offset] = buffer[7 + offset + 2]; // B
+
+                        zone.palette.loadDynamicGradientPalette(bytes);
+                    }
                     break;
                 }
-
-                case Contracts::colorMsg:
-                    switch (buffer[2]) // read color mode
-                    {
-                        case Contracts::staticColor:
-                            zones[zone].colorMode = ColorMode::COL;
-                            zones[zone].color = CRGB{buffer[3],  // R
-                                                     buffer[4],  // G
-                                                     buffer[5]}; // B
-                            break;
-
-                        case Contracts::gradColor:
-                        {
-                            zones[zone].colorMode = ColorMode::GRAD;
-                            zones[zone].blending = static_cast<TBlendType>(buffer[3]);
-                            zones[zone].gradientSpeed = buffer[4];
-                            zones[zone].gradientColorStep = buffer[5];
-                            byte bytes[buffer[6] * 4]; // 4 for RGB + index
-
-                            for (byte i = 0; i < buffer[6]; ++i)
-                            {
-                                byte offset = 3 * i;
-
-                                bytes[offset] = floor(255 / double(buffer[6] - 1)) * i; // color index in a palette
-
-                                bytes[1 + offset] = buffer[7 + offset];     // R
-                                bytes[2 + offset] = buffer[7 + offset + 1]; // G
-                                bytes[3 + offset] = buffer[7 + offset + 2]; // B
-
-                                zones[zone].palette.loadDynamicGradientPalette(bytes);
-                            }
-                            break;
-                        }
-                        case Contracts::rndColor:
-                            zones[zone].colorMode = ColorMode::RND;
-                            zones[zone].delay = buffer[3];
-                            break;
-
-                        default:
-                            reset();
-                            break;
-                    }
-                    break;
-
-                case Contracts::modeMsg:
-                    switch (buffer[2]) // read state mode
-                    {
-                        case Contracts::staticState:
-                            zones[zone].mode = Mode::STATIC;
-                            break;
-
-                        case Contracts::snakeState:
-                            zones[zone].mode = Mode::SNAKE;
-                            zones[zone].direction = (int)buffer[3];
-
-                            zones[zone].sStart = zones[zone].start; // TODO can be improved to look prettier
-                            zones[zone].sEnd = zones[zone].start + ((uint16_t)buffer[5] | ((uint16_t)buffer[4] << 8));
-
-                            zones[zone].loop = buffer[6]; // TODO fix if end < start
-                            zones[zone].delay = buffer[7];
-                            break;
-
-                        default:
-                            Serial.write(-1);
-                            break;
-                    }
+                case COL_RND:
+                    zone.colorMode = ColorMode::RND;
+                    zone.delay = buffer[3];
                     break;
 
                 default:
                     reset();
                     break;
             }
+            break;
 
-            // Ack to the received msg
-            Serial.write(Serial.available());
-        }
+        case MSG_MOD:
+            switch (buffer[2]) // read state mode
+            {
+                case STATE_STATIC:
+                    zone.mode = Mode::STATIC;
+                    break;
+
+                case STATE_SNAKE:
+                    zone.mode = Mode::SNAKE;
+                    zone.direction = (int)buffer[3];
+
+                    zone.sStart = zone.start; // TODO can be improved to look prettier
+                    zone.sEnd = zone.start + ((uint16_t)buffer[5] | ((uint16_t)buffer[4] << 8));
+
+                    zone.loop = buffer[6]; // TODO fix if end < start
+                    zone.delay = buffer[7];
+                    break;
+
+                default:
+                    reset();
+                    break;
+            }
+            break;
+
+        default:
+            reset();
+            break;
     }
+}
+
+
+void setup() {
+    Wire.begin(ADDRESS);
+    Wire.onReceive(receiveEvent);
+    Wire.setClock(CLOCK_SPD);
+
+    delay(INIT_DELAY);
+    CFastLED::addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(leds, LED_NUM).setCorrection(TypicalLEDStrip);
+
+    //======
+
+    zones[0].start = 0;
+    zones[0].end = LED_NUM;
+
+    zones[0].colorMode = ColorMode::GRAD;
+    zones[0].gradientSpeed = 1;
+    zones[0].mode = Mode::STATIC;
+    zones[0].color = CRGB::Magenta;
+    zones[0].loop = true;
+    zones[0].brightness = 100;
+    zones[0].sStart = 40;
+    zones[0].sEnd = 100;
 }
 
 void loop()

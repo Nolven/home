@@ -1,0 +1,6 @@
+{
+  "zone_number": {"byte": 0, "size": 1},
+  "left_bound":  {"byte": 1, "size": 2},
+  "right_bound": {"byte": 3, "size": 2},
+  "brightness":  {"byte": 5, "size": 1}
+}

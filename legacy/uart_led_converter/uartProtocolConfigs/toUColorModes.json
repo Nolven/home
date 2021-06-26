@@ -1,0 +1,25 @@
+{
+  "msg_num": 1,
+  "mode": {"byte": 0, "size": 1},
+  "static_color":
+  {
+    "mode_num": 0,
+    "R":     {"byte": 1, "size": 1},
+    "G":     {"byte": 2, "size": 1},
+    "B":     {"byte": 3, "size": 1}
+  },
+  "grad_color":
+  {
+    "mode_num": 1,
+    "blending":       {"byte": 1, "size": 1},
+    "speed":          {"byte": 2, "size": 1},
+    "sampler_step":   {"byte": 3, "size": 1},
+    "color_number":   {"byte": 4, "size": 1},
+    "colors":         {"byte": 5, "size": 3}
+  },
+  "rnd_color":
+  {
+    "mode_num": 2,
+    "delay": {"byte": 1, "size": 1}
+  }
+}

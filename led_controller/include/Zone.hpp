@@ -181,7 +181,7 @@ struct Zone {
     byte brightness = 255;
 
     //Gradient
-    CRGBPalette16 palette = LavaColors_p;
+    CRGBPalette16 palette = HeatColors_p;
     TBlendType blending = TBlendType::LINEARBLEND;
     uint8_t paletteStart = 0;
     byte gradientSpeed = 0;
