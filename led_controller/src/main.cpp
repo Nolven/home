@@ -8,6 +8,7 @@
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 #define DATA_PIN 7
+#define LED_PIN 13
 #define ZONE_NUM 10
 
 #define INIT_DELAY 2000
@@ -54,6 +55,7 @@ void receiveEvent(int size) {
     // so i actually must add an offset of 2 -_-
     // will do through pointer
 
+    digitalWrite(LED_PIN, HIGH);
     byte* buffer = (byte*)malloc(size + 2); // yay, it works. Kill me
     Wire.readBytes(buffer, size);
     buffer = buffer + 2;
@@ -142,6 +144,7 @@ void receiveEvent(int size) {
             reset();
             break;
     }
+    digitalWrite(LED_PIN, LOW);
 }
 
 
