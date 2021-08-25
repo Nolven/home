@@ -1,12 +1,13 @@
 #include <Wire.h>
 #include <Arduino.h>
-#include "DHT.h"
+#include <DHT.h>
+#include <Adafruit_SSD1306.h>
 
-// DHT
+// DHT (humidity/temperature)
 #define DHTPIN 7
 #define DHTTYPE DHT11   // DHT 11
 
-// t6703
+// t6703 (CO2)
 constexpr byte address      = 0x15;
 constexpr byte requestSize  = 0x05;
 constexpr byte responseSize = 0x04;
@@ -16,11 +17,17 @@ constexpr byte fieldBytesNumber  =  0x01;
 constexpr byte fieldDataMsb = 0x02;
 constexpr byte fieldDataLsb = 0x03;
 
+// SSD1306 screen
+#define SCREEN_WIDTH 128 // OLED display width, in pixels
+#define SCREEN_HEIGHT 64 // OLED display height, in pixels
+
 constexpr auto baudRate = 115200;
 
 // Common
-#define DELAY 5000
-#define ADDRESS 0x22 // this board
+#define DELAY 2000 // min delay for sensors between data send
+#define CURR_ADDRESS 0x22 // this board
+
+//////////////////////////////////////
 
 // buffers
 float h;
@@ -29,6 +36,9 @@ float hic;
 float co2;
 
 DHT dht(DHTPIN, DHTTYPE);
+
+// Declaration for an SSD1306 display connected to I2C (SDA, SCL pins)
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // t6703-5k
 uint16_t getT67XXMetric(uint8_t _i2cAddress) {
@@ -56,14 +66,15 @@ uint16_t getT67XXMetric(uint8_t _i2cAddress) {
     return ((uint16_t) rawData[fieldDataMsb] << 8) | rawData[fieldDataLsb];
 }
 
-template <typename T> int write_i2c (const T& value)
+template <typename T>
+int write_i2c (const T& value)
 {
     const byte * p = (const byte*) &value;
     unsigned int i;
     for (i = 0; i < sizeof value; i++)
         Wire.write(*p++);
     return i;
-}  // end of I2C_writeAnything
+}
 
 void requestEvent() {
     // 16 byte for values
@@ -74,21 +85,39 @@ void requestEvent() {
 }
 
 void setup() {
-    Wire.begin(ADDRESS);
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
+
+    Wire.begin(CURR_ADDRESS);
     Wire.onRequest(requestEvent);
 
-    Serial.begin(baudRate);
-
     dht.begin();
+
+    display.clearDisplay();
+
+    display.setTextSize(2);
+    display.setTextColor(WHITE);
+
+    display.setCursor(0, 5);
+    // Display static text
+    display.println("Hello, ");
+    display.println("    mate!");
+    display.display();
 }
 
-void loop()
-{
+void loop() {
     delay(DELAY);
+    display.clearDisplay();
 
     co2 = getT67XXMetric(address);
 
     h = dht.readHumidity();
     t = dht.readTemperature();
     hic = dht.computeHeatIndex(t, h, false);
+
+    display.setCursor(0, 5);
+    display.println("T:  " + String(t) + "C");
+    display.println("Hum:" + String(h) + "%");
+    display.println("CO2:" + String(int(co2)));
+
+    display.display();
 }
