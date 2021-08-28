@@ -8,8 +8,19 @@ from typing import List
 
 max_zones = 10
 
-hallway = [{"general_data": {}}] * 10
-room = [{"general_data": {}}] * 10
+general_data_template = {
+    "general_data":
+    {
+        "start": 0,
+        "end": 0,
+        "brightness": 255
+    }
+}
+
+hallway = [general_data_template] * 10
+room = [general_data_template] * 10
+
+storage_path = "storage/"
 
 
 def update_data(current, received: json):
@@ -36,23 +47,24 @@ def on_connect(client, userdata, flags, rc):
 
 
 def on_message(client, userdata, msg):
+    # store
     if msg.topic == "room/led":
         update_data(room, json.loads(msg.payload))
     elif msg.topic == "hallway/led":
         update_data(hallway, json.loads(msg.payload))
 
     # requests
-    elif msg.topc == "hallway/led/get":
-        client.publish("hallway/led", hallway[msg.payload])
-    elif msg.topc == "room/led/get":
-        client.publish("room/led", room[msg.payload])
+    elif msg.topic == "hallway/led/get":
+        client.publish("hallway/led", json.dumps({"zone": int(msg.payload), **hallway[int(msg.payload)]}))
+    elif msg.topic == "room/led/get":
+        client.publish("room/led", json.dumps({"zone": int(msg.payload), **room[int(msg.payload)]}))
 
     for i, el in enumerate(room):
-        with open("room" + str(i) + ".json", 'w') as file:
+        with open(storage_path + "room" + str(i) + ".json", 'w') as file:
             json.dump(el, file)
 
     for i, el in enumerate(hallway):
-        with open("hallway" + str(i) + ".json", 'w') as file:
+        with open(storage_path + "hallway" + str(i) + ".json", 'w') as file:
             json.dump(el, file)
 
     print(msg.topic + " " + str(msg.payload))
@@ -63,7 +75,7 @@ def ensure_dir(directory):
         os.makedirs(directory)
 
 
-ensure_dir("storage")
+ensure_dir(storage_path)
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
