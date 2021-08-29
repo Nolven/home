@@ -47,6 +47,7 @@
     <string name="temperature_label">Temperature (C):</string>
     <string name="humidity_label">Humidity (%):</string>
     <string name="co2_label">CO2 (ppm):</string>
+    <string name="Update">update</string>
 
     <string-array name="led_modes">
         <item>Snake</item>

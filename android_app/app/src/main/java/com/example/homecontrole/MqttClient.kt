@@ -16,6 +16,8 @@ open class MqttClient(private val context: Context) {
     lateinit var successCb: (String, String) -> Unit
     lateinit var disconnectCb: (String) -> Unit
     var airStats: MutableLiveData<JsonObject> = MutableLiveData()
+    var hallwayLed: MutableLiveData<JsonObject> = MutableLiveData()
+    var roomLed: MutableLiveData<JsonObject> = MutableLiveData()
 
     fun publish(topic: String,
                 msg: String,
@@ -43,11 +45,19 @@ open class MqttClient(private val context: Context) {
                 Log.d(logTag, "Mqtt message receive from $topic")
                 when(topic){
                     "air" -> {
-//                        Log.d(logTag,
-//                            JsonParser.parseString(message!!.payload.toString()).asJsonObject.toString()
-//                        )
                         if (message != null) {
-                            airStats.value = JsonParser.parseString(String(message.payload)).asJsonObject
+                            airStats.postValue(JsonParser.parseString(String(message.payload)).asJsonObject)
+                        }
+                    }
+                    "hallway/led" -> {
+                        if (message != null) {
+                            hallwayLed.postValue(JsonParser.parseString(String(message.payload)).asJsonObject)
+                        }
+                    }
+                    "room/led" -> {
+                        if (message != null) {
+                            roomLed.postValue(JsonParser.parseString(String(message.payload)).asJsonObject)
+
                         }
                     }
                 }
@@ -78,11 +88,13 @@ open class MqttClient(private val context: Context) {
         client = MqttAndroidClient(context, uri, "")
         setCallbacks()
 
+        val subscribeTopics: Array<String> = arrayOf("air", "hallway/led", "room/led")
+        val topicsQos: IntArray = intArrayOf(1,1,1)
         client.connect(MqttConnectOptions(), null,
             object : IMqttActionListener {
             override fun onSuccess(asyncActionToken: IMqttToken?) {
                 // Subscribe on success
-                client.subscribe("air", 1, null, object : IMqttActionListener {
+                client.subscribe(subscribeTopics, topicsQos, null, object : IMqttActionListener {
                     override fun onSuccess(asyncActionToken: IMqttToken?) {
                         successCb(server, port)
                     }

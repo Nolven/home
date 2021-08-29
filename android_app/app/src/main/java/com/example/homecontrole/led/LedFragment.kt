@@ -20,6 +20,7 @@ import com.example.homecontrole.R
 import com.example.homecontrole.databinding.FragmentLedBinding
 import com.example.homecontrole.databinding.LedGeneralBinding
 import com.example.homecontrole.databinding.LedModeSnakeBinding
+import com.example.homecontrole.statistics.StatisticsViewModel
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.android.material.slider.Slider
@@ -38,6 +39,8 @@ class FragmentLed : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    private lateinit var model: LedViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -182,6 +185,18 @@ class FragmentLed : Fragment() {
     private var _binding: FragmentLedBinding? = null
     private val binding get() = _binding!!
 
+    private fun updateAll(json: JsonObject)
+    {
+        binding.brightnessSlider.value = json["general_data"].asJsonObject["brightness"].asFloat
+        if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
+            updateGeneral(json["general_data"].asJsonObject)
+    }
+
+    private fun updateGeneral(json: JsonObject)
+    {
+        binding.generalInclude.zoneStartTextEdit.setText(json["start"].asString)
+        binding.generalInclude.zoneEndTextEdit.setText(json["end"].asString)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
@@ -197,10 +212,9 @@ class FragmentLed : Fragment() {
 
         setSnakeChangeListener(binding.modeSnakeInclude) // TODO non-loop snake with "here" option doesn't work
         setGeneralChangeListener(binding.generalInclude)
-        binding.brightnessSlider.addOnChangeListener{ slider, value, _ ->
+        binding.brightnessSlider.addOnChangeListener{ _, value, _ ->
             generalData.brightness = value.toInt()
         }
-
 
         val colorButton: Button =  binding.ledColorStaticInclude.colorButton
         colorButton.setBackgroundColor(Color.rgb(
@@ -253,6 +267,23 @@ class FragmentLed : Fragment() {
 
         setButtons()
 
+        // Automatic view update from server ack
+        model = LedViewModel((requireActivity() as MainActivity).mqtt)
+        model.hallway.observe(viewLifecycleOwner, {
+            if (binding.roomSpinner.selectedItem.toString() == "hallway"
+                && it["zone"].toString() == binding.zoneSpinner.selectedItem.toString())
+            {
+                updateAll(it)
+            }
+        })
+        model.room.observe(viewLifecycleOwner, {
+            if (binding.roomSpinner.selectedItem.toString() == "room"
+                && it["zone"].toString() == binding.zoneSpinner.selectedItem.toString())
+            {
+                updateAll(it)
+            }
+        })
+
         return view
     }
 
@@ -297,9 +328,15 @@ class FragmentLed : Fragment() {
         })
     }
 
+    private fun requestLedUpdate()
+    {
+        (requireActivity() as MainActivity).mqtt.publish(binding.roomSpinner.selectedItem.toString() + "/" + getString(R.string.led_topic) + "/" + getString(R.string.led_get_topic), binding.roomSpinner.selectedItem.toString())
+    }
+
     private fun setButtons()
     {
         binding.modeButton.setOnClickListener { modeMenu.show() }
+
         binding.colorModeButton.setOnClickListener { colorMenu.show() }
 
         binding.ledSendButton.setOnClickListener{
@@ -316,5 +353,7 @@ class FragmentLed : Fragment() {
                 else -> throw IllegalStateException()
             }
         }
+
+        binding.ledRefreshButton.setOnClickListener { requestLedUpdate() }
     }
 }

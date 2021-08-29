@@ -1,5 +1,6 @@
 package com.example.homecontrole.statistics
 
+import androidx.lifecycle.MediatorLiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -10,10 +11,15 @@ import org.eclipse.paho.client.mqttv3.MqttClient
 import javax.inject.Inject
 
 class StatisticsViewModel @Inject constructor(
-    private val client: com.example.homecontrole.MqttClient
+    client: com.example.homecontrole.MqttClient
 ): ViewModel()
 {
-    val air: MutableLiveData<JsonObject> = client.airStats
+    val air: MediatorLiveData<JsonObject> = MediatorLiveData()
+    init {
+        air.addSource(client.airStats) {
+            air.value = it
+        }
+    }
 }
 
 class ConnectionViewModelFactory(private val mqtt: com.example.homecontrole.MqttClient) : ViewModelProvider.Factory {
