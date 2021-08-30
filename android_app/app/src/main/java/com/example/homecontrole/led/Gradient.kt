@@ -12,13 +12,16 @@ import android.widget.Button
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
+import androidx.core.view.forEach
 import com.example.homecontrole.R
 import com.example.homecontrole.databinding.LedColorGradientBinding
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import java.lang.Integer.parseInt
+import java.lang.reflect.Array
 
 
 class Gradient(private val binding: LedColorGradientBinding, private val context: Context)
@@ -40,17 +43,20 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
             binding.gradientRemoveColor.visibility = View.INVISIBLE
     }
 
-    private fun addColor()
+    private fun addColor(color: kotlin.Array<Int> = arrayOf(255, 0, 255))
     {
         val colorIndex = data.colors.size
-        data.colors.add(arrayOf(255, 0, 255))
+        data.colors.add(color)
 
         // Create color button
         val colorButton = Button(context)
         val buttonId = View.generateViewId()
         colorButton.id = buttonId
+        colorButton.setBackgroundColor(Color.rgb(color[0],
+                                                color[1],
+                                                color[2]))
         colorPickerIds.add(buttonId)
-        colorButton.setBackgroundColor(0xFFFF00FF.toInt())
+
         colorButton.setOnClickListener{
             val initialColor = Color.rgb(
                 data.colors[colorIndex][0],
@@ -124,7 +130,19 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
                     data.blending = 1
                 }
             }
+    }
 
+    fun update(json: JsonObject)
+    {
+        binding.gradientSpeed.setText(json["speed"].asString)
+        binding.gradientSamplerStep.setText(json["sampler_step"].asString)
+        binding.gradientBlending.setSelection(json["blending"].asInt)
+
+        while (colorPickerIds.isNotEmpty())
+            removeColor()
+
+        for( color in json["colors"].asJsonArray )
+            addColor(arrayOf(color.asJsonArray[0].asInt, color.asJsonArray[1].asInt, color.asJsonArray[2].asInt))
     }
 
     fun getJson(): JsonElement {

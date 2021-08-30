@@ -29,6 +29,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.lang.Integer.parseInt
+import kotlin.math.log
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -41,6 +42,7 @@ class FragmentLed : Fragment() {
     private var param2: String? = null
 
     private lateinit var model: LedViewModel
+    private val logTag = "LED"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -153,7 +155,7 @@ class FragmentLed : Fragment() {
             json.addProperty("color_mode", colorJsonName)
             json.add("color_data", colorDataFunction())
 
-            Log.d("Color", json.toString())
+            Log.d(logTag, json.toString())
             sendData(json.toString())
         }
     }
@@ -167,7 +169,7 @@ class FragmentLed : Fragment() {
             json.addProperty("display_mode", modeJsonName)
             json.add("display_data", modeDataFunction())
 
-            Log.d("State", json.toString())
+            Log.d(logTag, json.toString())
             sendData(json.toString())
         }
     }
@@ -178,18 +180,68 @@ class FragmentLed : Fragment() {
         json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
         json.add("general_data", Gson().toJsonTree(generalData))
 
-        Log.d("General", json.toString())
+        Log.d(logTag, json.toString())
         sendData(json.toString())
     }
 
     private var _binding: FragmentLedBinding? = null
     private val binding get() = _binding!!
 
+    private fun updateStaticColor(json: JsonObject)
+    {
+        staticColorData.R = json["R"].asInt
+        staticColorData.G = json["G"].asInt
+        staticColorData.B = json["B"].asInt
+
+        binding.ledColorStaticInclude.colorButton.setBackgroundColor(Color.rgb(staticColorData.R,
+                                                                                staticColorData.G,
+                                                                                staticColorData.B))
+    }
+
+    private fun updateSnake(json: JsonObject)
+    {
+
+    }
+
     private fun updateAll(json: JsonObject)
     {
-        binding.brightnessSlider.value = json["general_data"].asJsonObject["brightness"].asFloat
-        if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
-            updateGeneral(json["general_data"].asJsonObject)
+        Log.d(logTag,"Dynamic update in poggers")
+        if( json.has("general_data") )
+        {
+            Log.d(logTag,"General update")
+            binding.brightnessSlider.value = json["general_data"].asJsonObject["brightness"].asFloat
+            if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
+                updateGeneral(json["general_data"].asJsonObject)
+        }
+
+        if( json.has("display_mode") )
+        {
+            Log.d(logTag,"Mode update")
+            when(json["display_mode"].toString())
+            {
+                "snake" ->
+                    if( binding.modeSnakeInclude.hostLayout.visibility == View.VISIBLE )
+                        updateSnake(json["display_data"].asJsonObject)
+            }
+        }
+
+        if( json.has("color_mode") )
+        {
+            Log.d(logTag, "${json["color_mode"].asString} color update")
+            when(json["color_mode"].asString)
+            {
+                "static" ->
+                    if( binding.ledColorStaticInclude.hostLayout.visibility == View.VISIBLE )
+                        updateStaticColor(json["color_data"].asJsonObject)
+
+                "gradient" ->
+                    if( binding.ledColorGradientInclude.hostLayout.visibility == View.VISIBLE )
+                       gradient.update(json["color_data"].asJsonObject)
+                "random" ->
+                    if( binding.ledColorRandomInclude.hostLayout.visibility == View.VISIBLE )
+                        binding.ledColorRandomInclude.colorRandomDelay.setText(json["color_data"].asJsonObject["delay"].asString)
+            }
+        }
     }
 
     private fun updateGeneral(json: JsonObject)
