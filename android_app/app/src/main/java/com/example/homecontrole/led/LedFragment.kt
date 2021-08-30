@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Button
+import android.widget.CheckBox
 import android.widget.PopupMenu
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -200,6 +201,15 @@ class FragmentLed : Fragment() {
 
     private fun updateSnake(json: JsonObject)
     {
+        binding.modeSnakeInclude.delay.setText(json["delay"].asString)
+        binding.modeSnakeInclude.length.setText(json["length"].asString)
+
+        binding.modeSnakeInclude.checkboxMeat.isChecked = json["loop"].asBoolean
+
+        when(json["direction"].asInt) {
+            -1 -> binding.modeSnakeInclude.directionGroup.check(R.id.snake_there)
+            1 -> binding.modeSnakeInclude.directionGroup.check(R.id.snake_here)
+        }
 
     }
 
@@ -217,7 +227,7 @@ class FragmentLed : Fragment() {
         if( json.has("display_mode") )
         {
             Log.d(logTag,"Mode update")
-            when(json["display_mode"].toString())
+            when(json["display_mode"].asString)
             {
                 "snake" ->
                     if( binding.modeSnakeInclude.hostLayout.visibility == View.VISIBLE )
