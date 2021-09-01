@@ -1,31 +1,27 @@
 import argparse
 import json
 
-from Client import client
+from Client import Client
 
 config: json = {
-    "mqtt":
+    "ip": "192.168.0.15",
+    "port": 1883,
+    "name": "",
+    "transport": "tcp",
+    "password": "",
+    "default_qos": 0,
+    "byte_config_paths":
         {
-            "ip": "192.168.0.15",
-            "port": 1883,
-            "name": "",
-            "transport": "tcp",
-            "password": "",
-            "in_topic": "room/led",
-            "out_topic": "cba",
-            "byte_config_paths":
-            {
-                "color_modes": "byte_configs/toUColorModes.json",
-                "general": "byte_configs/toUGeneral.json",
-                "header": "byte_configs/toUHeader.json",
-                "state_modes": "byte_configs/toUStateModes.json"
-            }
+            "color_modes": "byte_configs/toUColorModes.json",
+            "general": "byte_configs/toUGeneral.json",
+            "header": "byte_configs/toUHeader.json",
+            "state_modes": "byte_configs/toUStateModes.json"
         },
-    "i2c":
-        {
-            "device": 0,
-            "address": 0x69
-        }
+    "i2c_interface": 0,
+    "topic_address_map": {  # TODO: change too prefix config
+        "room/led": 0x6a,
+        "hallway/led": 0x69
+    }
 }
 
 
@@ -44,8 +40,6 @@ def parse_args():
                         help='Generate default config')
 
     args = parser.parse_args()
-    # global isDebug
-    # isDebug = args.isDebug
 
     if args.gen:
         print_conf()
@@ -61,7 +55,7 @@ def parse_args():
 if __name__ == '__main__':
     parse_args()
 
-    mqtt = client(config)
+    mqtt = Client(config)
     mqtt.start()
 
     while True:

@@ -21,8 +21,6 @@ constexpr byte fieldDataLsb = 0x03;
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
 
-constexpr auto baudRate = 115200;
-
 // Common
 #define DELAY 2000 // min delay for sensors between data send
 #define CURR_ADDRESS 0x22 // this board
@@ -86,7 +84,6 @@ void requestEvent() {
 
 void setup() {
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
-
     Wire.begin(CURR_ADDRESS);
     Wire.onRequest(requestEvent);
 
