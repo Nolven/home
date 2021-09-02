@@ -19,13 +19,6 @@
 #define MSG_COL 1
 #define MSG_MOD 2
 
-#define COL_STATIC 0
-#define COL_GRAD 1
-#define COL_RND 2
-
-#define STATE_STATIC 0
-#define STATE_SNAKE 1
-
 CRGB leds[LED_NUM];
 Zone zones[ZONE_NUM];
 
@@ -37,7 +30,7 @@ void (* reset)() = nullptr;
  * 1. Incoming msg size
  * 2. Main header (zone number, msg_type)
  * 3. Msg type
- * 4. Mode for specific msg
+ * 4. DisplayMode for specific msg
  * 5. Msg body
  */
 void handleData(byte* buffer)
@@ -56,38 +49,40 @@ void handleData(byte* buffer)
         }
 
         case MSG_COL:
-            switch (buffer[2]) // read color mode
+            switch (static_cast<ColorMode>(buffer[2])) // read color mode
             {
-                case COL_STATIC:
-                    zone.colorMode = ColorMode::COL;
+                case ColorMode::STATIC:
+                    zone.colorMode = ColorMode::STATIC;
                     zone.color = CRGB{buffer[3],  // R
                                       buffer[4],  // G
                                       buffer[5]}; // B
                     break;
 
-                case COL_GRAD:
+                case ColorMode::GRAD:
                 {
                     zone.colorMode = ColorMode::GRAD;
                     zone.blending = static_cast<TBlendType>(buffer[3]);
                     zone.gradientSpeed = buffer[4];
                     zone.gradientColorStep = buffer[5];
-                    byte bytes[buffer[6] * 4]; // 4 for RGB + index
 
-                    for (byte i = 0; i < buffer[6]; ++i)
+                    byte colorLength = floor(PALETTE_SIZE / buffer[6]); // Currently, 16palette is used (5)
+
+                    for (byte i = 0; i < buffer[6] - 1; ++i)
                     {
-                        byte offset = 3 * i;
-
-                        bytes[offset] = floor(255 / double(buffer[6] - 1)) * i; // color index in a palette
-
-                        bytes[1 + offset] = buffer[7 + offset];     // R
-                        bytes[2 + offset] = buffer[7 + offset + 1]; // G
-                        bytes[3 + offset] = buffer[7 + offset + 2]; // B
-
-                        zone.palette.loadDynamicGradientPalette(bytes);
+                        byte colorOffset = 3 * i;
+                        fill_gradient_RGB(zone.palette,
+                                          colorLength * i, CRGB(buffer[7 + colorOffset], buffer[8 + colorOffset], buffer[9 + colorOffset]),
+                                          colorLength * (i + 1), CRGB(buffer[7 + colorOffset + 3], buffer[8 + colorOffset + 3], buffer[9 + colorOffset + 3]));
                     }
+
+                    // last-first color gradient
+                    fill_gradient_RGB(zone.palette,
+                                      PALETTE_SIZE - colorLength, CRGB(buffer[7 + buffer[6] + 3], buffer[8 + buffer[6] + 3], buffer[9 + buffer[6] + 3]), // first color
+                                      PALETTE_SIZE, CRGB(buffer[7], buffer[8], buffer[9]));
+
                     break;
                 }
-                case COL_RND:
+                case ColorMode::RND:
                     zone.colorMode = ColorMode::RND;
                     zone.delay = buffer[3];
                     break;
@@ -99,14 +94,14 @@ void handleData(byte* buffer)
             break;
 
         case MSG_MOD:
-            switch (buffer[2]) // read state mode
+            switch (static_cast<DisplayMode>(buffer[2])) // read state mode
             {
-                case STATE_STATIC:
-                    zone.mode = Mode::STATIC;
+                case DisplayMode::STATIC:
+                    zone.mode = DisplayMode::STATIC;
                     break;
 
-                case STATE_SNAKE:
-                    zone.mode = Mode::SNAKE;
+                case DisplayMode::SNAKE:
+                    zone.mode = DisplayMode::SNAKE;
                     zone.direction = (int)buffer[3];
 
                     zone.sStart = zone.start; // TODO can be improved to look prettier
@@ -155,7 +150,7 @@ void setup() {
 
     zones[0].colorMode = ColorMode::GRAD;
     zones[0].gradientSpeed = 1;
-    zones[0].mode = Mode::STATIC;
+    zones[0].mode = DisplayMode::STATIC;
     zones[0].color = CRGB::Magenta;
     zones[0].loop = true;
     zones[0].brightness = 100;

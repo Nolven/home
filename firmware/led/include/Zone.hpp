@@ -3,17 +3,17 @@
 
 #include <FastLED.h>
 
-enum Mode
+enum class DisplayMode
 {
-    STATIC,
-    SNAKE,
+    STATIC = 0,
+    SNAKE = 1
 };
 
-enum ColorMode
+enum class ColorMode
 {
-    RND,
-    COL,
-    GRAD,
+    STATIC = 0,
+    GRAD = 1,
+    RND = 2,
     MUSIC
 };
 
@@ -24,25 +24,25 @@ struct Zone {
     {
         uint8_t index = paletteStart; //for grad
         for (; s < e; ++s) {
-            switch (colorMode)
+            switch (static_cast<ColorMode>(colorMode))
             {
-                case RND:
+                case ColorMode::RND:
                     FastLED.leds()[s] = CHSV(random(), 255, brightness);
                     break;
 
-                case COL:
+                case ColorMode::STATIC:
                 {
                     double b = double(brightness) / 255;
                     FastLED.leds()[s] = CRGB(color.r*b, color.g*b, color.b*b);
                     break;
                 }
-                case GRAD:
+                case ColorMode::GRAD:
                 {
                     FastLED.leds()[s] = ColorFromPalette(palette, index, brightness,  blending);
                     index += gradientColorStep;
                     break;
                 }
-                case MUSIC:
+                case ColorMode::MUSIC:
                     //TODO implement
                     break;
             }
@@ -110,7 +110,7 @@ struct Zone {
         if (start == end)
             return;
 
-        if(delayCounter++ < delay )
+        if( delayCounter++ < delay )
             return;
         else
             delayCounter = 0;
@@ -118,13 +118,13 @@ struct Zone {
         if( colorMode == ColorMode::GRAD )
             paletteStart += gradientSpeed;
 
-        switch (mode)
+        switch (static_cast<DisplayMode>(mode))
         {
-            case STATIC:
+            case DisplayMode::STATIC:
                 paint(start, end);
                 break;
 
-            case SNAKE:
+            case DisplayMode::SNAKE:
                 if (loop)
                     loopSnake();
                 else
@@ -181,7 +181,8 @@ struct Zone {
     byte brightness = 255;
 
     //Gradient
-    CRGBPalette16 palette = HeatColors_p;
+    #define PALETTE_SIZE 16
+    CRGBPalette16 palette = ForestColors_p;
     TBlendType blending = TBlendType::LINEARBLEND;
     uint8_t paletteStart = 0;
     byte gradientSpeed = 0;
@@ -189,7 +190,7 @@ struct Zone {
 
     //Modes
     ColorMode colorMode = ColorMode::GRAD;
-    Mode mode = Mode::STATIC;
+    DisplayMode mode = DisplayMode::STATIC;
 };
 
 #endif
