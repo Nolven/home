@@ -7,9 +7,12 @@ Firmware:
 
 Software:
 * Change storage server logic
-
+* Storage server air topic
+* 
 App:
 * Alarm clock
+* Setting for auto-update
 
 General:
 * .service files for systemd
+* Move topics prefix into sep file
