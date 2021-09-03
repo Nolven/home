@@ -13,6 +13,7 @@ App:
 * Alarm clock
 * Setting for auto-update
 * Slider default value
+* Snake crashes app on removing the last digit from delay/length
 
 General:
 * .service files for systemd
