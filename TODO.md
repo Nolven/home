@@ -2,6 +2,7 @@ Firmware:
 * ZOne boundaries change doesn't cause blackening of the old part of the zone (i'm so good at formulating my thoughts)
 * Snake mode crashes board on change from loop to bouncy
 * Add stacking mode
+* Brightness fix
 * (Someday) Add music mode
 
 Software:
