@@ -1,71 +1,66 @@
 import json
 import os
+
 import paho.mqtt.client as mqtt
 
 # TODO configs
 # TODO OP
-from typing import List
 
-max_zones = 10
+max_zones = 11
 
-general_data_template = {
-    "general_data":
-    {
-        "start": 0,
-        "end": 0,
-        "brightness": 255
-    }
+stored_led = {
+    "hallway": [{} for i in range(max_zones)],
+    "room": [{} for j in range(max_zones)]
 }
 
-hallway = [general_data_template] * 10
-room = [general_data_template] * 10
-
 storage_path = "storage/"
+led_storage_name = "led"
 
 
-def update_data(current, received: json):
-    zone = int(received["zone"])
+def load_storage(path):
+    with open(path + led_storage_name + '.json') as led_json:
+        global stored_led
+        stored_led = json.load(led_json)
+
+
+def update_led(room, received: json):
+    destination = stored_led[room][int(received["zone"])]
+
     if "color_mode" in received:
-        current[zone]["color_mode"] = received["color_mode"]
-        current[zone]["color_data"] = received["color_data"]
+        destination["color_mode"] = received["color_mode"]
+        destination["color_data"] = received["color_data"]
 
     if "display_mode" in received:
-        current[zone]["display_mode"] = received["display_mode"]
-        current[zone]["display_data"] = received["display_data"]
+        destination["display_mode"] = received["display_mode"]
+        destination["display_data"] = received["display_data"]
 
     # General
     # Ignore if both start and end == 0
-    if received["general_data"]["start"] == 0 and received["general_data"]["end"] == 0:
-        current[zone]["general_data"]["brightness"] = received["general_data"]["brightness"]
-    else:
-        current[zone] = received["general_data"]
+    if "general_data" in received:
+        if received["general_data"]["start"] == 0 and received["general_data"]["end"] == 0:
+            if "general_date" not in destination:
+                destination["general_data"] = {"start": 0, "end": 0}
+            destination["general_data"]["brightness"] = received["general_data"]["brightness"]
+        else:
+            destination["general_data"] = received["general_data"]
 
 
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
+    print("Connected with result code: " + str(rc))
     client.subscribe("#")
 
 
-def on_message(client, userdata, msg):
-    # store
-    if msg.topic == "room/led":
-        update_data(room, json.loads(msg.payload))
-    elif msg.topic == "hallway/led":
-        update_data(hallway, json.loads(msg.payload))
+def on_message(_, userdata, msg):
+    if "led" in msg.topic:
+        if "get" in msg.topic:  # Request
+            prefix = msg.topic[:msg.topic.find('/')]
+            client.publish(prefix + "/led",
+                           json.dumps({"zone": int(msg.payload), **stored_led[prefix][int(msg.payload)]}))
+        else:  # Storage
+            update_led(msg.topic[:msg.topic.find('/')], json.loads(msg.payload))
 
-    # requests
-    elif msg.topic == "hallway/led/get":
-        client.publish("hallway/led", json.dumps({"zone": int(msg.payload), **hallway[int(msg.payload)]}))
-    elif msg.topic == "room/led/get":
-        client.publish("room/led", json.dumps({"zone": int(msg.payload), **room[int(msg.payload)]}))
-
-    for i, el in enumerate(room):
-        with open(storage_path + "room" + str(i) + ".json", 'w') as file:
-            json.dump(el, file)
-
-    for i, el in enumerate(hallway):
-        with open(storage_path + "hallway" + str(i) + ".json", 'w') as file:
-            json.dump(el, file)
+    with open(storage_path + led_storage_name + ".json", 'w') as file:
+        json.dump(stored_led, file, indent=4)
 
     print(msg.topic + " " + str(msg.payload))
 
@@ -75,10 +70,16 @@ def ensure_dir(directory):
         os.makedirs(directory)
 
 
-ensure_dir(storage_path)
-client = mqtt.Client()
-client.on_connect = on_connect
-client.on_message = on_message
-client.connect("127.0.0.1", 1883)
+if __name__ == "__main__":
+    ensure_dir(storage_path)
 
-client.loop_forever()
+    print(stored_led)
+    load_storage(storage_path)
+    print(stored_led)
+
+    client = mqtt.Client()
+    client.on_connect = on_connect
+    client.on_message = on_message
+    client.connect("192.168.0.15", 1883)
+
+    client.loop_forever()
