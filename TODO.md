@@ -6,12 +6,11 @@ Firmware:
 * (Someday) Add music mode
 
 Software:
-* Change storage server logic
 * Storage server air topic
-* 
+
 App:
 * Alarm clock
-* Setting for auto-update
+* Settings for auto-update
 * Slider default value
 * Snake crashes app on removing the last digit from delay/length
 
