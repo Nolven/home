@@ -2,6 +2,7 @@ package com.example.homecontrole.led
 
 import android.content.Context
 import android.graphics.Color
+import android.opengl.Visibility
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -12,7 +13,6 @@ import android.widget.Button
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
 import androidx.core.graphics.red
-import androidx.core.view.forEach
 import com.example.homecontrole.R
 import com.example.homecontrole.databinding.LedColorGradientBinding
 import com.flask.colorpicker.ColorPickerView
@@ -21,14 +21,19 @@ import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import java.lang.Integer.parseInt
-import java.lang.reflect.Array
 
+data class GradientData(
+    var blending: Int,
+    var speed: Int,
+    var sampler_step: Int,
+    var colors: ArrayList<Array<Int>>
+)
 
 class Gradient(private val binding: LedColorGradientBinding, private val context: Context)
 {
     private var colorPickerIds: ArrayList<Int> = ArrayList()
 
-    private val data: GradientData = GradientData(0, 0, 0, arrayListOf())
+    private val data = GradientData(0, 0, 0, arrayListOf())
 
     private fun removeColor()
     {
@@ -41,6 +46,10 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
         // Hide clear button when there is no colors
         if( colorPickerIds.isEmpty() )
             binding.gradientRemoveColor.visibility = View.INVISIBLE
+
+        if( binding.gradientAddColor.visibility == View.INVISIBLE )
+            binding.gradientAddColor.visibility = View.VISIBLE
+
     }
 
     private fun addColor(color: kotlin.Array<Int> = arrayOf(255, 0, 255))
@@ -91,6 +100,9 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
         // Show clear button
         if (binding.gradientRemoveColor.visibility == View.INVISIBLE)
             binding.gradientRemoveColor.visibility = View.VISIBLE
+
+        if( data.colors.size == 8 ) // 32 bytes max for i2c
+            binding.gradientAddColor.visibility = View.INVISIBLE
     }
 
     private fun setDataUpdateCb()

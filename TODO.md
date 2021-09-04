@@ -11,9 +11,6 @@ Software:
 App:
 * Alarm clock
 * Settings for auto-update
-* Slider default value
-* Limit max gradient colors to 8
-* Snake crashes app on removing the last digit from delay/length
 
 General:
 * .service files for systemd

@@ -30,6 +30,7 @@ import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.lang.Integer.parseInt
+import kotlin.math.floor
 import kotlin.math.log
 
 private const val ARG_PARAM1 = "param1"
@@ -277,6 +278,7 @@ class FragmentLed : Fragment() {
         binding.brightnessSlider.addOnChangeListener{ _, value, _ ->
             generalData.brightness = value.toInt()
         }
+        binding.brightnessSlider.value = floor((binding.brightnessSlider.valueTo - binding.brightnessSlider.valueFrom)/2)
 
         val colorButton: Button =  binding.ledColorStaticInclude.colorButton
         colorButton.setBackgroundColor(Color.rgb(
@@ -354,7 +356,8 @@ class FragmentLed : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                snakeStateData.length = parseInt(s.toString())
+                if( s.toString().isNotEmpty() )
+                    snakeStateData.length = parseInt(s.toString())
             }
         })
 
@@ -362,7 +365,8 @@ class FragmentLed : Fragment() {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
-                snakeStateData.delay = parseInt(s.toString())
+                if( s.toString().isNotEmpty() )
+                    snakeStateData.delay = parseInt(s.toString())
             }
         })
 
