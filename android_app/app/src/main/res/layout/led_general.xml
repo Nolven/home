@@ -8,7 +8,6 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/zoneStart_textEdit"
@@ -21,7 +20,6 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
-        style="@style/ThemeOverlay.MaterialComponents.TextInputEditText.OutlinedBox"
         android:layout_height="wrap_content">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/zoneEnd_textEdit"

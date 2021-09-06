@@ -10,7 +10,6 @@ import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.PopupMenu
 import androidx.core.graphics.blue
 import androidx.core.graphics.green
@@ -21,38 +20,27 @@ import com.example.homecontrole.R
 import com.example.homecontrole.databinding.FragmentLedBinding
 import com.example.homecontrole.databinding.LedGeneralBinding
 import com.example.homecontrole.databinding.LedModeSnakeBinding
-import com.example.homecontrole.statistics.StatisticsViewModel
 import com.flask.colorpicker.ColorPickerView
 import com.flask.colorpicker.builder.ColorPickerDialogBuilder
-import com.google.android.material.slider.Slider
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonPrimitive
 import java.lang.Integer.parseInt
 import kotlin.math.floor
-import kotlin.math.log
+import androidx.preference.PreferenceManager
+import android.widget.AdapterView
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-// TODO split to classes
+
 
 class FragmentLed : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
     private lateinit var model: LedViewModel
     private val logTag = "LED"
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    // I'm shitcoding rn, feature me, pls forgive me
+    private var isRoomUpdate: Boolean = false
+    private var isHallwayUpdate: Boolean = false
 
     // Menus
     private lateinit var colorMenu: PopupMenu
@@ -71,49 +59,75 @@ class FragmentLed : Fragment() {
 
     private val generalData = GeneralData(0, 0, 255)
 
+    private fun openColorInclude(id: Int)
+    {
+        when (id) {
+            R.id.static_color -> {
+                binding.ledColorStaticInclude.hostLayout.visibility = View.VISIBLE
+                binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
+
+                colorDataFunction = { Gson().toJsonTree(staticColorData) }
+                colorJsonName = "static"
+            }
+            R.id.random_color -> {
+                binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                binding.ledColorRandomInclude.hostLayout.visibility = View.VISIBLE
+
+                colorDataFunction = {
+                    val o = JsonObject()
+                    val t = binding.ledColorRandomInclude.colorRandomDelay.text.toString()
+                    o.addProperty("delay", if(t.isNotEmpty()) parseInt(t) else 0)
+                    o
+                }
+                colorJsonName = "random"
+            }
+            R.id.gradient_color -> {
+                binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                binding.ledColorGradientInclude.hostLayout.visibility = View.VISIBLE
+                binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
+
+                colorDataFunction = { gradient.getJson() }
+                colorJsonName = "gradient"
+            }
+            R.id.none -> {
+                binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
+                binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
+                binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
+                colorJsonName = ""
+            }
+        }
+
+    }
+
+    private fun openModeInclude(id: Int)
+    {
+        when (id) {
+            R.id.snake_state -> {
+                binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
+                modeJsonName = "snake"
+                modeDataFunction = { Gson().toJsonTree(snakeStateData) }
+            }
+            R.id.static_state -> {
+                binding.modeSnakeInclude.hostLayout.visibility = View.GONE
+                modeJsonName = "static"
+                modeDataFunction = { JsonPrimitive("") }
+            }
+            R.id.none -> {
+                binding.modeSnakeInclude.hostLayout.visibility = View.GONE
+                modeJsonName = ""
+            }
+        }
+    }
+
     private fun setupMenus() {
         //Color menu
         colorMenu.inflate(R.menu.led_color_mode)
         colorMenu.setOnMenuItemClickListener {
             it.isChecked = true
             binding.colorModeButton.text = it.title
-            when (it.itemId) {
-                R.id.static_color -> {
-                    binding.ledColorStaticInclude.hostLayout.visibility = View.VISIBLE
-                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
-
-                    colorDataFunction = { Gson().toJsonTree(staticColorData) }
-                    colorJsonName = "static"
-                }
-                R.id.random_color -> {
-                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorRandomInclude.hostLayout.visibility = View.VISIBLE
-
-                    colorDataFunction = {
-                        val o = JsonObject()
-                        val t = binding.ledColorRandomInclude.colorRandomDelay.text.toString()
-                        o.addProperty("delay", if(t.isNotEmpty()) parseInt(t) else 0)
-                        o
-                    }
-                    colorJsonName = "random"
-                }
-                R.id.gradient_color -> {
-                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorGradientInclude.hostLayout.visibility = View.VISIBLE
-                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
-
-                    colorDataFunction = { gradient.getJson() }
-                    colorJsonName = "gradient"
-                }
-                R.id.none -> {
-                    binding.ledColorStaticInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
-                    binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
-                    colorJsonName = ""
-                }
-            }
+            openColorInclude(it.itemId)
             true
         }
 
@@ -122,22 +136,7 @@ class FragmentLed : Fragment() {
         modeMenu.setOnMenuItemClickListener {
             it.isChecked = true
             binding.modeButton.text = it.title
-            when (it.itemId) {
-                R.id.snake_state -> {
-                    binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
-                    modeJsonName = "snake"
-                    modeDataFunction = { Gson().toJsonTree(snakeStateData) }
-                }
-                R.id.static_state -> {
-                    binding.modeSnakeInclude.hostLayout.visibility = View.GONE
-                    modeJsonName = "static"
-                    modeDataFunction = { JsonPrimitive("") }
-                }
-                R.id.none -> {
-                    binding.modeSnakeInclude.hostLayout.visibility = View.GONE
-                    modeJsonName = ""
-                }
-            }
+            openModeInclude(it.itemId)
             true
         }
     }
@@ -217,6 +216,9 @@ class FragmentLed : Fragment() {
     private fun updateAll(json: JsonObject)
     {
         Log.d(logTag,"Dynamic update in poggers")
+        // Check whether we need to open menus
+        val isAutoOpen = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("led_open", false)
+
         if( json.has("general_data") )
         {
             Log.d(logTag,"General update")
@@ -231,8 +233,11 @@ class FragmentLed : Fragment() {
             when(json["display_mode"].asString)
             {
                 "snake" ->
-                    if( binding.modeSnakeInclude.hostLayout.visibility == View.VISIBLE )
+                {
+                    if (isAutoOpen) openModeInclude(R.id.snake_state) // TODO duct tape
+                    if (binding.modeSnakeInclude.hostLayout.visibility == View.VISIBLE)
                         updateSnake(json["display_data"].asJsonObject)
+                }
             }
         }
 
@@ -241,16 +246,23 @@ class FragmentLed : Fragment() {
             Log.d(logTag, "${json["color_mode"].asString} color update")
             when(json["color_mode"].asString)
             {
-                "static" ->
-                    if( binding.ledColorStaticInclude.hostLayout.visibility == View.VISIBLE )
+                "static" -> {
+                    if (isAutoOpen) openColorInclude(R.id.static_color)
+                    if (binding.ledColorStaticInclude.hostLayout.visibility == View.VISIBLE)
                         updateStaticColor(json["color_data"].asJsonObject)
-
+                }
                 "gradient" ->
+                {
+                    if (isAutoOpen) openColorInclude(R.id.gradient_color)
                     if( binding.ledColorGradientInclude.hostLayout.visibility == View.VISIBLE )
-                       gradient.update(json["color_data"].asJsonObject)
+                        gradient.update(json["color_data"].asJsonObject)
+                }
                 "random" ->
+                {
+                    if (isAutoOpen) openColorInclude(R.id.random_color)
                     if( binding.ledColorRandomInclude.hostLayout.visibility == View.VISIBLE )
                         binding.ledColorRandomInclude.colorRandomDelay.setText(json["color_data"].asJsonObject["delay"].asString)
+                }
             }
         }
     }
@@ -314,6 +326,21 @@ class FragmentLed : Fragment() {
                 .show()
         }
 
+        val spinnerListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parentView: AdapterView<*>?,
+                selectedItemView: View?,
+                position: Int,
+                id: Long
+            ) {
+                isRoomUpdate = false
+                isHallwayUpdate = false
+                if (PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("led_change_update", false))
+                    requestLedUpdate()
+            }
+            override fun onNothingSelected(parentView: AdapterView<*>?) {}
+        }
+
         // Room names spinner
         ArrayAdapter.createFromResource(
                 requireContext(),
@@ -322,12 +349,14 @@ class FragmentLed : Fragment() {
         ).also { adapter ->
             adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.roomSpinner.adapter = adapter }
+        binding.roomSpinner.onItemSelectedListener = spinnerListener
 
         // Zones spinner
         ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, (0..10).toList())
                 .also {
             it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
             binding.zoneSpinner.adapter = it }
+        binding.zoneSpinner.onItemSelectedListener = spinnerListener
 
         setButtons()
 
@@ -337,14 +366,34 @@ class FragmentLed : Fragment() {
             if (binding.roomSpinner.selectedItem.toString() == "hallway"
                 && it["zone"].toString() == binding.zoneSpinner.selectedItem.toString())
             {
-                updateAll(it)
+                if( PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("led_auto_update", false) )
+                {
+                    updateAll(it)
+                    binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.light_gray))
+                    isHallwayUpdate = false
+                }
+                else
+                {
+                    binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.dark_red))
+                    isHallwayUpdate = true
+                }
             }
         })
         model.room.observe(viewLifecycleOwner, {
             if (binding.roomSpinner.selectedItem.toString() == "room"
                 && it["zone"].toString() == binding.zoneSpinner.selectedItem.toString())
             {
-                updateAll(it)
+                if( PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("led_auto_update", false) )
+                {
+                    updateAll(it)
+                    binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.light_gray))
+                    isRoomUpdate = false
+                }
+                else
+                {
+                    binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.dark_red))
+                    isRoomUpdate = true
+                }
             }
         })
 
@@ -396,7 +445,7 @@ class FragmentLed : Fragment() {
 
     private fun requestLedUpdate()
     {
-        (requireActivity() as MainActivity).mqtt.publish(binding.roomSpinner.selectedItem.toString() + "/" + getString(R.string.led_topic) + "/" + getString(R.string.led_get_topic), binding.roomSpinner.selectedItem.toString())
+        (requireActivity() as MainActivity).mqtt.publish(binding.roomSpinner.selectedItem.toString() + "/" + getString(R.string.led_topic) + "/" + getString(R.string.led_get_topic), binding.zoneSpinner.selectedItem.toString())
     }
 
     private fun setButtons()
@@ -420,6 +469,21 @@ class FragmentLed : Fragment() {
             }
         }
 
-        binding.ledRefreshButton.setOnClickListener { requestLedUpdate() }
+        binding.ledUpdateButton.setOnClickListener {
+            if( isHallwayUpdate && binding.roomSpinner.selectedItem.toString() == "hallway" )
+            {
+                model.hallway.value?.let { it1 -> updateAll(it1) }
+                isHallwayUpdate = false
+                binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.light_gray))
+            }
+            else if( isRoomUpdate && binding.roomSpinner.selectedItem.toString() == "room" )
+            {
+                model.room.value?.let { it1 -> updateAll(it1) }
+                isRoomUpdate = false
+                binding.ledUpdateButton.setBackgroundColor(resources.getColor(R.color.light_gray))
+            }
+            else
+                requestLedUpdate()
+        }
     }
 }

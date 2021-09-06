@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private lateinit var binding: ActivityMainBinding
+    public lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,7 +61,6 @@ class MainActivity : AppCompatActivity() {
         mqtt.disconnectCb = this::onDisconnect
 
         onDisconnect("")
-
 
         binding.navigationView.setNavigationItemSelectedListener{
             when (it.itemId)
@@ -88,5 +87,17 @@ class MainActivity : AppCompatActivity() {
             // TODO hide drawer
             true
         }
+
+        binding.backButton.setOnClickListener{
+            supportFragmentManager.popBackStack()
+        }
+
+        binding.settingsButton.setOnClickListener {
+            supportFragmentManager.commit {
+                replace<SettingsFragment>(R.id.fragment_host)
+                setReorderingAllowed(true)
+                addToBackStack(null) }
+        }
+
     }
 }

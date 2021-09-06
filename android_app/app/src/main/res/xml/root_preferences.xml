@@ -1,0 +1,19 @@
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <PreferenceCategory
+        app:title="@string/pref_led_header">
+
+        <SwitchPreferenceCompat
+            app:key="led_open"
+            app:title="Open collapsed sections on update" />
+
+        <SwitchPreferenceCompat
+            app:key="led_auto_update"
+            app:title="Auto update on msg receive" />
+
+        <SwitchPreferenceCompat
+            app:key="led_change_update"
+            app:title="Update on change of zone/room" />
+
+    </PreferenceCategory>
+</PreferenceScreen>

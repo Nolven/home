@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -48,17 +49,19 @@
             />
 
         <Button
-            android:id="@+id/led_refresh_button"
+            android:id="@+id/led_update_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:text="@string/Update"
             android:layout_centerInParent="true"
+            android:background="@color/light_gray"
+            android:text="@string/Update"
             tools:ignore="RelativeOverlap" />
 
     </RelativeLayout>
 
     <com.google.android.material.slider.Slider
+        android:theme="@style/AppTheme"
         android:id="@+id/brightness_slider"
         android:valueFrom="0"
         android:valueTo="255"
