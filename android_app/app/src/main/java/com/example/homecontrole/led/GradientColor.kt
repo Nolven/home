@@ -29,7 +29,7 @@ data class GradientData(
     var colors: ArrayList<Array<Int>>
 )
 
-class Gradient(private val binding: LedColorGradientBinding, private val context: Context)
+class GradientColor(private val binding: LedColorGradientBinding, private val context: Context)
 {
     private var colorPickerIds: ArrayList<Int> = ArrayList()
 
@@ -52,7 +52,7 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
 
     }
 
-    private fun addColor(color: kotlin.Array<Int> = arrayOf(255, 0, 255))
+    private fun addColor(color: Array<Int> = arrayOf(255, 0, 255))
     {
         val colorIndex = data.colors.size
         data.colors.add(color)
@@ -90,7 +90,7 @@ class Gradient(private val binding: LedColorGradientBinding, private val context
                     data.colors[colorIndex][1] = initialColor.green
                     data.colors[colorIndex][2] = initialColor.blue
                     colorButton.setBackgroundColor(initialColor)
-                } // TODO return color
+                }
                 .build()
                 .show()
         }

@@ -2,26 +2,18 @@
 
 package com.example.homecontrole.led
 
-import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.ArrayAdapter
-import android.widget.Button
 import android.widget.PopupMenu
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
 import androidx.fragment.app.Fragment
 import com.example.homecontrole.MainActivity
 import com.example.homecontrole.R
 import com.example.homecontrole.databinding.FragmentLedBinding
 import com.example.homecontrole.databinding.LedGeneralBinding
-import com.example.homecontrole.databinding.LedModeSnakeBinding
-import com.flask.colorpicker.ColorPickerView
-import com.flask.colorpicker.builder.ColorPickerDialogBuilder
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
@@ -30,9 +22,6 @@ import java.lang.Integer.parseInt
 import kotlin.math.floor
 import androidx.preference.PreferenceManager
 import android.widget.AdapterView
-
-
-
 
 class FragmentLed : Fragment() {
     private lateinit var model: LedViewModel
@@ -47,15 +36,15 @@ class FragmentLed : Fragment() {
     private lateinit var modeMenu: PopupMenu
 
     // Color data
-    private lateinit var gradient: Gradient
-    private var staticColorData: StaticColorData = StaticColorData(255, 0, 255)
+    private lateinit var gradientColor: GradientColor
+    private lateinit var staticColor: StaticColor
     private var colorDataFunction: () -> JsonElement = { JsonPrimitive("") }
     private var colorJsonName: String = ""
 
     // Mode data
     private var modeJsonName: String = ""
+    private lateinit var snakeMode: SnakeMode
     private var modeDataFunction: () -> JsonElement = { JsonPrimitive("") }
-    private val snakeStateData = SnakeData(0, 0, true, 0)
 
     private val generalData = GeneralData(0, 0, 255)
 
@@ -67,7 +56,7 @@ class FragmentLed : Fragment() {
                 binding.ledColorGradientInclude.hostLayout.visibility = View.GONE
                 binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
-                colorDataFunction = { Gson().toJsonTree(staticColorData) }
+                colorDataFunction = { staticColor.getJson() }
                 colorJsonName = "static"
             }
             R.id.random_color -> {
@@ -88,7 +77,7 @@ class FragmentLed : Fragment() {
                 binding.ledColorGradientInclude.hostLayout.visibility = View.VISIBLE
                 binding.ledColorRandomInclude.hostLayout.visibility = View.GONE
 
-                colorDataFunction = { gradient.getJson() }
+                colorDataFunction = { gradientColor.getJson() }
                 colorJsonName = "gradient"
             }
             R.id.none -> {
@@ -107,7 +96,7 @@ class FragmentLed : Fragment() {
             R.id.snake_state -> {
                 binding.modeSnakeInclude.hostLayout.visibility = View.VISIBLE
                 modeJsonName = "snake"
-                modeDataFunction = { Gson().toJsonTree(snakeStateData) }
+                modeDataFunction = { snakeMode.getJson() }
             }
             R.id.static_state -> {
                 binding.modeSnakeInclude.hostLayout.visibility = View.GONE
@@ -188,31 +177,6 @@ class FragmentLed : Fragment() {
     private var _binding: FragmentLedBinding? = null
     private val binding get() = _binding!!
 
-    private fun updateStaticColor(json: JsonObject)
-    {
-        staticColorData.R = json["R"].asInt
-        staticColorData.G = json["G"].asInt
-        staticColorData.B = json["B"].asInt
-
-        binding.ledColorStaticInclude.colorButton.setBackgroundColor(Color.rgb(staticColorData.R,
-                                                                                staticColorData.G,
-                                                                                staticColorData.B))
-    }
-
-    private fun updateSnake(json: JsonObject)
-    {
-        binding.modeSnakeInclude.delay.setText(json["delay"].asString)
-        binding.modeSnakeInclude.length.setText(json["length"].asString)
-
-        binding.modeSnakeInclude.checkboxMeat.isChecked = json["loop"].asBoolean
-
-        when(json["direction"].asInt) {
-            -1 -> binding.modeSnakeInclude.directionGroup.check(R.id.snake_there)
-            1 -> binding.modeSnakeInclude.directionGroup.check(R.id.snake_here)
-        }
-
-    }
-
     private fun updateAll(json: JsonObject)
     {
         Log.d(logTag,"Dynamic update in poggers")
@@ -236,7 +200,7 @@ class FragmentLed : Fragment() {
                 {
                     if (isAutoOpen) openModeInclude(R.id.snake_state) // TODO duct tape
                     if (binding.modeSnakeInclude.hostLayout.visibility == View.VISIBLE)
-                        updateSnake(json["display_data"].asJsonObject)
+                        snakeMode.update(json["display_data"].asJsonObject)
                 }
             }
         }
@@ -249,13 +213,13 @@ class FragmentLed : Fragment() {
                 "static" -> {
                     if (isAutoOpen) openColorInclude(R.id.static_color)
                     if (binding.ledColorStaticInclude.hostLayout.visibility == View.VISIBLE)
-                        updateStaticColor(json["color_data"].asJsonObject)
+                        staticColor.update(json["color_data"].asJsonObject)
                 }
                 "gradient" ->
                 {
                     if (isAutoOpen) openColorInclude(R.id.gradient_color)
                     if( binding.ledColorGradientInclude.hostLayout.visibility == View.VISIBLE )
-                        gradient.update(json["color_data"].asJsonObject)
+                        gradientColor.update(json["color_data"].asJsonObject)
                 }
                 "random" ->
                 {
@@ -267,7 +231,7 @@ class FragmentLed : Fragment() {
         }
     }
 
-    private fun updateGeneral(json: JsonObject)
+    private fun updateGeneral(json: JsonObject) // TODO move to general
     {
         binding.generalInclude.zoneStartTextEdit.setText(json["start"].asString)
         binding.generalInclude.zoneEndTextEdit.setText(json["end"].asString)
@@ -283,48 +247,17 @@ class FragmentLed : Fragment() {
         modeMenu = PopupMenu(requireContext(), binding.modeButton)
         setupMenus()
 
-        gradient = Gradient(binding.ledColorGradientInclude, requireContext())
+        // Support classes
+        gradientColor = GradientColor(binding.ledColorGradientInclude, requireContext())
+        staticColor = StaticColor(binding.ledColorStaticInclude, requireContext())
+        snakeMode = SnakeMode(binding.modeSnakeInclude, requireContext())
 
-        setSnakeChangeListener(binding.modeSnakeInclude) // TODO non-loop snake with "here" option doesn't work
+        // General packet
         setGeneralChangeListener(binding.generalInclude)
         binding.brightnessSlider.addOnChangeListener{ _, value, _ ->
             generalData.brightness = value.toInt()
         }
         binding.brightnessSlider.value = floor((binding.brightnessSlider.valueTo - binding.brightnessSlider.valueFrom)/2)
-
-        val colorButton: Button =  binding.ledColorStaticInclude.colorButton
-        colorButton.setBackgroundColor(Color.rgb(
-                staticColorData.R,
-                staticColorData.G,
-                staticColorData.B))
-        colorButton.setOnClickListener {
-            val initialColor = Color.rgb(
-                    staticColorData.R,
-                    staticColorData.G,
-                    staticColorData.B)
-            ColorPickerDialogBuilder
-                .with(context)
-                .setTitle("Choose color")
-                .initialColor(initialColor)
-                .lightnessSliderOnly()
-                .wheelType(ColorPickerView.WHEEL_TYPE.FLOWER)
-                .density(12)
-                .setOnColorSelectedListener { selectedColor ->
-                    staticColorData.R = selectedColor.red
-                    staticColorData.G = selectedColor.green
-                    staticColorData.B = selectedColor.blue
-                    colorButton.setBackgroundColor(selectedColor)
-                }
-                .setPositiveButton("Choose") { _, _, _ ->}
-                .setNegativeButton("Cancel") { _, _ ->
-                    staticColorData.R = initialColor.red
-                    staticColorData.G = initialColor.green
-                    staticColorData.B = initialColor.blue
-                    colorButton.setBackgroundColor(initialColor)
-                }
-                .build()
-                .show()
-        }
 
         val spinnerListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -400,31 +333,7 @@ class FragmentLed : Fragment() {
         return view
     }
 
-    private fun setSnakeChangeListener(binding: LedModeSnakeBinding) {
-        binding.length.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if( s.toString().isNotEmpty() )
-                    snakeStateData.length = parseInt(s.toString())
-            }
-        })
-
-        binding.delay.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if( s.toString().isNotEmpty() )
-                    snakeStateData.delay = parseInt(s.toString())
-            }
-        })
-
-        binding.snakeHere.setOnClickListener { snakeStateData.direction = 1 }
-        binding.snakeThere.setOnClickListener { snakeStateData.direction = -1 }
-        binding.checkboxMeat.setOnClickListener { snakeStateData.loop = binding.checkboxMeat.isChecked }
-    }
-
-    private fun setGeneralChangeListener(binding: LedGeneralBinding)
+    private fun setGeneralChangeListener(binding: LedGeneralBinding) // TODO move to general
     {
         binding.zoneStartTextEdit.addTextChangedListener( object: TextWatcher{
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
@@ -467,7 +376,7 @@ class FragmentLed : Fragment() {
                 View.GONE -> View.VISIBLE
                 else -> throw IllegalStateException()
             }
-        }
+        } // TODO  move to general
 
         binding.ledUpdateButton.setOnClickListener {
             if( isHallwayUpdate && binding.roomSpinner.selectedItem.toString() == "hallway" )
