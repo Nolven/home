@@ -71,8 +71,7 @@
 
             <include
                 android:id="@+id/general_include"
-                layout="@layout/led_general"
-                android:visibility="visible"/>
+                layout="@layout/led_general"/>
 
             <!--Mode part-->
             <Button
@@ -83,7 +82,7 @@
             <include
                 layout="@layout/led_mode_snake"
                 android:id="@+id/mode_snake_include"
-                android:visibility="gone"/>
+                android:visibility="gone" />
 
             <!--Color part-->
             <Button

@@ -1,79 +1,89 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- It's a *BIT* messy -->
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/host_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/gradient_speed"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="2"
-            android:hint="@string/gradient_color_speed_hint"/>
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/gradient_sampler_step"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="2"
-            android:hint="@string/gradient_sampler_step"/>
-    </com.google.android.material.textfield.TextInputLayout>
+    android:orientation="horizontal"
+    android:baselineAligned="false"
+    android:background="@drawable/topless_rectangle">
 
     <LinearLayout
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:layout_margin="5dp"
+        android:orientation="vertical"
+        android:layout_weight=".4">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/gradient_blending"/>
+            android:padding="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/gradient_speed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="2"
+                android:hint="@string/gradient_color_speed_hint"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/gradient_sampler_step"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="2"
+                android:hint="@string/gradient_sampler_step"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <Spinner
             android:id="@+id/gradient_blending"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/gradient_add_color"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:text="@string/gradient_add_color" />
+
+            <Button
+                android:id="@+id/gradient_remove_color"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:text="@string/gradient_remove_color_hint"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
     </LinearLayout>
 
-    <GridLayout
-        android:id="@+id/led_color_gradient_host"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:columnCount="4"
-        android:useDefaultMargins="true" />
-
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        style="?android:attr/buttonBarButtonStyle">
+        android:orientation="vertical"
+        android:layout_weight=".5">
 
-        <Button
-            android:id="@+id/gradient_add_color"
-            android:layout_width="wrap_content"
+        <GridLayout
+            android:id="@+id/led_color_gradient_host"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/gradient_add_color" />
-        <!-- Should be better way -->
-        <Button
-            android:id="@+id/gradient_remove_color"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/gradient_remove_color_hint"
-            android:visibility="invisible"/>
+            android:columnCount="2"
+            android:useDefaultMargins="true" />
 
     </LinearLayout>
 

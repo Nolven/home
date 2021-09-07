@@ -23,7 +23,7 @@
     <string name="gradient_color">Gradient</string>
     <string name="led_color_mode_label">Color modes</string>
     <string name="gradient_color_remove">Remove</string>
-    <string name="gradient_add_color">Add color</string>
+    <string name="gradient_add_color">Add</string>
     <string name="led_start_hint">Start</string>
     <string name="led_end_hint">End</string>
     <string name="led_random_delay_hint">Delay</string>
@@ -40,7 +40,7 @@
     <string name="led_gradient_clear">Remove</string>
     <string name="menu_connection">Connection</string>
     <string name="led_brightness">Brightness</string>
-    <string name="gradient_remove_color_hint">Remove color</string>
+    <string name="gradient_remove_color_hint">Remove</string>
 
     <string name="pref_key_ip">ip</string>
     <string name="pref_key_port">port</string>
@@ -55,8 +55,8 @@
     </string-array>
 
     <string-array name="blending_modes">
-        <item>None</item>
-        <item>LinearBlending</item>
+        <item>No blending</item>
+        <item>Linear blending</item>
     </string-array>
 
     <!--Order is important (idk better way to do it)-->
