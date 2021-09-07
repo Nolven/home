@@ -18,15 +18,16 @@ data class StaticColorData(var R: Int, var G: Int, var B: Int)
 
 class StaticColor(private val binding: LedColorStaticBinding, private val context: Context)
 {
+    private val logTag = "LED_staticColor"
     private val data = StaticColorData(255, 0, 255)
 
     fun update(json: JsonObject){
+        Log.d(logTag, "update")
         data.R = json["R"].asInt
         data.G = json["G"].asInt
         data.B = json["B"].asInt
 
-        binding.colorButton.setBackgroundColor(
-            Color.rgb(data.R, data.G, data.B))
+        binding.colorButton.setBackgroundColor(Color.rgb(data.R, data.G, data.B))
     }
 
     fun getJson(): JsonElement{

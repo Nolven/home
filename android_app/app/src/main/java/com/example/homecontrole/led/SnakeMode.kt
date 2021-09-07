@@ -14,9 +14,12 @@ data class SnakeData(var direction: Int, var length: Int, var loop: Boolean, var
 
 class SnakeMode(private val binding: LedModeSnakeBinding, private val context: Context)
 {
+    private val logTag = "LED_snake"
     private val data = SnakeData(0, 0, true, 0)
 
     fun update(json: JsonObject){
+        Log.d(logTag,"Mode update")
+
         binding.delay.setText(json["delay"].asString)
         binding.length.setText(json["length"].asString)
 

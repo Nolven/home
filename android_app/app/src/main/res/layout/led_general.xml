@@ -4,29 +4,54 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/border"
+    >
 
-    <com.google.android.material.textfield.TextInputLayout
+    <com.google.android.material.slider.Slider
+        android:theme="@style/AppTheme"
+        android:id="@+id/brightness_slider"
+        android:valueFrom="0"
+        android:valueTo="255"
+        android:stepSize="1"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/zoneStart_textEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="5"
-            android:hint="@string/led_start_hint"/>
-    </com.google.android.material.textfield.TextInputLayout>
+        android:layout_height="wrap_content" />
 
-    <com.google.android.material.textfield.TextInputLayout
+    <LinearLayout
+        android:layout_margin="5dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/zoneEnd_textEdit"
-            android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:baselineAligned="false">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:inputType="number"
-            android:maxLength="5"
-            android:hint="@string/led_end_hint"/>
-    </com.google.android.material.textfield.TextInputLayout>
+            android:padding="5dp"
+            android:layout_weight=".4">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/zoneStart_textEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="5"
+                android:hint="@string/led_start_hint"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_weight=".4">
+        <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/zoneEnd_textEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:maxLength="5"
+                android:hint="@string/led_end_hint"/>
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
 </LinearLayout>

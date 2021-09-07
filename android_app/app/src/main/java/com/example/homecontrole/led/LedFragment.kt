@@ -35,6 +35,8 @@ class FragmentLed : Fragment() {
     private lateinit var colorMenu: PopupMenu
     private lateinit var modeMenu: PopupMenu
 
+    private lateinit var general: General
+
     // Color data
     private lateinit var gradientColor: GradientColor
     private lateinit var staticColor: StaticColor
@@ -45,8 +47,6 @@ class FragmentLed : Fragment() {
     private var modeJsonName: String = ""
     private lateinit var snakeMode: SnakeMode
     private var modeDataFunction: () -> JsonElement = { JsonPrimitive("") }
-
-    private val generalData = GeneralData(0, 0, 255)
 
     private fun openColorInclude(id: Int)
     {
@@ -168,7 +168,7 @@ class FragmentLed : Fragment() {
     {
         val json = JsonObject()
         json.addProperty("zone", parseInt(binding.zoneSpinner.selectedItem.toString()))
-        json.add("general_data", Gson().toJsonTree(generalData))
+        json.add("general_data", general.getJson())
 
         Log.d(logTag, json.toString())
         sendData(json.toString())
@@ -184,16 +184,10 @@ class FragmentLed : Fragment() {
         val isAutoOpen = PreferenceManager.getDefaultSharedPreferences(activity).getBoolean("led_open", false)
 
         if( json.has("general_data") )
-        {
-            Log.d(logTag,"General update")
-            binding.brightnessSlider.value = json["general_data"].asJsonObject["brightness"].asFloat
-            if( binding.generalInclude.hostLayout.visibility == View.VISIBLE )
-                updateGeneral(json["general_data"].asJsonObject)
-        }
+            general.update(json["general_data"].asJsonObject)
 
         if( json.has("display_mode") )
         {
-            Log.d(logTag,"Mode update")
             when(json["display_mode"].asString)
             {
                 "snake" ->
@@ -231,12 +225,6 @@ class FragmentLed : Fragment() {
         }
     }
 
-    private fun updateGeneral(json: JsonObject) // TODO move to general
-    {
-        binding.generalInclude.zoneStartTextEdit.setText(json["start"].asString)
-        binding.generalInclude.zoneEndTextEdit.setText(json["end"].asString)
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         _binding = FragmentLedBinding.inflate(inflater, container, false)
@@ -251,13 +239,7 @@ class FragmentLed : Fragment() {
         gradientColor = GradientColor(binding.ledColorGradientInclude, requireContext())
         staticColor = StaticColor(binding.ledColorStaticInclude, requireContext())
         snakeMode = SnakeMode(binding.modeSnakeInclude, requireContext())
-
-        // General packet
-        setGeneralChangeListener(binding.generalInclude)
-        binding.brightnessSlider.addOnChangeListener{ _, value, _ ->
-            generalData.brightness = value.toInt()
-        }
-        binding.brightnessSlider.value = floor((binding.brightnessSlider.valueTo - binding.brightnessSlider.valueFrom)/2)
+        general = General(binding.generalInclude, requireContext())
 
         val spinnerListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -333,25 +315,6 @@ class FragmentLed : Fragment() {
         return view
     }
 
-    private fun setGeneralChangeListener(binding: LedGeneralBinding) // TODO move to general
-    {
-        binding.zoneStartTextEdit.addTextChangedListener( object: TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if( s.toString().isNotEmpty())
-                    generalData.start = parseInt(s.toString()) }
-        })
-
-        binding.zoneEndTextEdit.addTextChangedListener( object: TextWatcher{
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-            override fun afterTextChanged(s: Editable?) {
-                if( s.toString().isNotEmpty())
-                    generalData.end = parseInt(s.toString()) }
-        })
-    }
-
     private fun requestLedUpdate()
     {
         (requireActivity() as MainActivity).mqtt.publish(binding.roomSpinner.selectedItem.toString() + "/" + getString(R.string.led_topic) + "/" + getString(R.string.led_get_topic), binding.zoneSpinner.selectedItem.toString())
@@ -368,15 +331,6 @@ class FragmentLed : Fragment() {
             sendGeneralData()
             sendStateData()
         }
-
-        binding.generalButton.setOnClickListener {
-            binding.generalInclude.hostLayout.visibility = when( binding.generalInclude.hostLayout.visibility )
-            {
-                View.VISIBLE -> { generalData.start = 0; generalData.end = 0; View.GONE }
-                View.GONE -> View.VISIBLE
-                else -> throw IllegalStateException()
-            }
-        } // TODO  move to general
 
         binding.ledUpdateButton.setOnClickListener {
             if( isHallwayUpdate && binding.roomSpinner.selectedItem.toString() == "hallway" )

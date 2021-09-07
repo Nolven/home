@@ -60,15 +60,6 @@
 
     </RelativeLayout>
 
-    <com.google.android.material.slider.Slider
-        android:theme="@style/AppTheme"
-        android:id="@+id/brightness_slider"
-        android:valueFrom="0"
-        android:valueTo="255"
-        android:stepSize="1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -78,16 +69,10 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <!--General part-->
-            <Button
-                android:id="@+id/general_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/led_general_label"/>
             <include
                 android:id="@+id/general_include"
                 layout="@layout/led_general"
-                android:visibility="gone"/>
+                android:visibility="visible"/>
 
             <!--Mode part-->
             <Button
