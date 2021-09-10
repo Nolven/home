@@ -4,6 +4,9 @@ softwareDir=`cd "$yes";pwd`
 
 for d in ${softwareDir}/*/; do
     serviceFile=`find ${d} -name "*.service" -exec basename \{} \;`
-    cp ${d}/serviceFile /etc/systemd/system
-    systemctl restart $serviceFile
+    if [ "$serviceFile" ]; then
+    	cp ${d}/${serviceFile} /etc/systemd/system/
+    fi
 done
+
+systemctl daemon-reload
