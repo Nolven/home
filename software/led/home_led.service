@@ -1,0 +1,9 @@
+[Unit]
+Description=Converts incoming mqtt topics data into i2c
+BindsTo=mosquitto.service
+Wants=home_storage.service
+
+[Service]
+WorkingDirectory=/root/software/led/
+Type=simple
+ExecStart=python3 main.py

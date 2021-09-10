@@ -1,0 +1,8 @@
+[Unit]
+Description=Stores incoming topics, publishes acks to requests
+BindsTo=mosquitto.service
+
+[Service]
+WorkingDirectory=/root/software/storage_server/
+Type=simple
+ExecStart=python3 main.py

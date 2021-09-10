@@ -1,0 +1,9 @@
+[Unit]
+Description=Converts incoming i2c air data to MQTT msgs
+BindsTo=mosquitto.service
+Wants=home_storage.service
+
+[Service]
+WorkingDirectory=/root/software/air/
+Type=simple
+ExecStart=python3 main.py
