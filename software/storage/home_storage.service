@@ -6,3 +6,5 @@ BindsTo=mosquitto.service
 WorkingDirectory=/root/software/storage_server/
 Type=simple
 ExecStart=python3 main.py
+Restart=always
+RestartSec=3

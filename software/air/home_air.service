@@ -7,3 +7,5 @@ Wants=home_storage.service
 WorkingDirectory=/root/software/air/
 Type=simple
 ExecStart=python3 main.py
+Restart=always
+RestartSec=3
