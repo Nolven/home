@@ -6,10 +6,16 @@ import android.os.Bundle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.commit
 import androidx.fragment.app.replace
+import com.example.homecontrole.alarm.AlarmFragment
 import com.example.homecontrole.connection.ConnectionFragment
 import com.example.homecontrole.databinding.ActivityMainBinding
 import com.example.homecontrole.led.FragmentLed
+import com.example.homecontrole.led.GeneralData
 import com.example.homecontrole.statistics.Statistics
+import com.google.gson.Gson
+import com.google.gson.JsonObject
+import org.eclipse.paho.client.mqttv3.MqttMessage
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
@@ -83,6 +89,12 @@ class MainActivity : AppCompatActivity() {
                         setReorderingAllowed(true)
                         addToBackStack(null) }
                 }
+                R.id.nav_alarm -> {
+                    supportFragmentManager.commit {
+                        replace<AlarmFragment>(R.id.fragment_host)
+                        setReorderingAllowed(true)
+                        addToBackStack(null) }
+                }
             }
             // TODO hide drawer
             true
@@ -97,6 +109,23 @@ class MainActivity : AppCompatActivity() {
                 replace<SettingsFragment>(R.id.fragment_host)
                 setReorderingAllowed(true)
                 addToBackStack(null) }
+        }
+
+        binding.lightsOutButton.setOnClickListener{
+            // send brightness 0 to each zone, each room
+            val json = JsonObject()
+            json.add("general_data", Gson().toJsonTree(GeneralData(0,0,0)))
+            thread{
+                for (i in 0..10) {
+                    json.addProperty("zone", i)
+                    mqtt.publish("room/led", json.toString())
+                    mqtt.publish("hallway/led", json.toString())
+                    Thread.sleep(10)
+                }
+            }
+
+            // disable air display
+            mqtt.publish("air/display", "0")
         }
 
     }

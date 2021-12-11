@@ -30,6 +30,10 @@ class Statistics : Fragment() {
             binding.humidityValueLabel.text = it["humidity"].toString()
         })
 
+        binding.climateToggleButton.setOnClickListener {
+            (requireActivity() as MainActivity).mqtt.publish("air/display", "")
+        }
+
         return binding.root
     }
 

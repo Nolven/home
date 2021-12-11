@@ -107,7 +107,7 @@ struct Zone {
 
     void update()
     {
-        if (start == end)
+        if ( start == end ) // basically zone disabler
             return;
 
         if( delayCounter++ < delay )
@@ -117,6 +117,12 @@ struct Zone {
 
         if( colorMode == ColorMode::GRAD )
             paletteStart += gradientSpeed;
+
+        if( updated )
+        {
+            FastLED.clear();
+            updated = false;
+        }
 
         switch (static_cast<DisplayMode>(mode))
         {
@@ -143,14 +149,10 @@ struct Zone {
             s = buf;
         }
 
-        // Manually blackout excessive data
-        if ( s > start )
-            paintItBlack(start, s);
-        if ( e < end )
-            paintItBlack(e, end);
-
+        //paintItBlack(start, end);
         start = s;
         end = e;
+        updated = true;
 
         // Snake state check
         if ( sStart > end || sStart < start )
@@ -191,6 +193,8 @@ struct Zone {
     //Modes
     ColorMode colorMode = ColorMode::GRAD;
     DisplayMode mode = DisplayMode::STATIC;
+
+    bool updated = false;
 };
 
 #endif

@@ -58,4 +58,10 @@
             android:text=""/>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/climate_toggle_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/climate_toggle"/>
+
 </LinearLayout>

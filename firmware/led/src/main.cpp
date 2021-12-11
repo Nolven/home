@@ -4,14 +4,16 @@
 
 #include "Zone.hpp"
 
-#define LED_NUM 250
+#define LED_NUM 400
 #define LED_TYPE WS2812B
 #define COLOR_ORDER GRB
 #define DATA_PIN 7
 #define LED_PIN 13
-#define ZONE_NUM 10
+#define ZONE_NUM 5
 
-#define ADDRESS 0x69
+#define ADDRESS 0x6a
+// 6a room
+// 69 hallway
 
 //==================
 
@@ -35,6 +37,7 @@ void (* reset)() = nullptr;
  */
 void handleData(byte* buffer)
 {
+    if( buffer[1] >= ZONE_NUM ) return; // a bit of protection
     Zone& zone = zones[buffer[1]];
     switch (buffer[0])
     {
@@ -163,6 +166,5 @@ void loop()
     // clear causes flickering
     for(auto & i : zones)
         i.update();
-
     FastLED.show();
 }

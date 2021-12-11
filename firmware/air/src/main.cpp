@@ -20,6 +20,10 @@ constexpr byte fieldDataLsb = 0x03;
 // SSD1306 screen
 #define SCREEN_WIDTH 128 // OLED display width, in pixels
 #define SCREEN_HEIGHT 64 // OLED display height, in pixels
+byte screenStatus = SSD1306_DISPLAYON;
+bool statusChanged = false;
+
+void (* reset)() = nullptr;
 
 // Common
 #define DELAY 2000 // min delay for sensors between data send
@@ -82,10 +86,36 @@ void requestEvent() {
     write_i2c(co2);
 }
 
+void receiveEvent(int size) {
+    // 2 bytes because of some fucked shit in library and 1 for mode
+    if( size != 3 ) return;
+
+    byte buffer[size];
+    Wire.readBytes(buffer, size);
+
+    switch (buffer[2]) {
+        case 0: // OFF
+            screenStatus = SSD1306_DISPLAYOFF;
+            break;
+        case 1: // ON
+            screenStatus = SSD1306_DISPLAYON;
+            break;
+        case 2: // TOGGLE
+            screenStatus ^= SSD1306_DISPLAYOFF ^ SSD1306_DISPLAYON;
+            break;
+        default: // IDK
+            reset();
+            break;
+    }
+
+    statusChanged = true;
+}
+
 void setup() {
     display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
     Wire.begin(CURR_ADDRESS);
     Wire.onRequest(requestEvent);
+    Wire.onReceive(receiveEvent);
 
     dht.begin();
 
@@ -117,4 +147,10 @@ void loop() {
     display.println("CO2:" + String(int(co2)));
 
     display.display();
+
+    if( statusChanged )
+    {
+        statusChanged = false;
+        display.ssd1306_command(screenStatus);
+    }
 }

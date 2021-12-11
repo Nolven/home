@@ -29,26 +29,23 @@ bus = SMBus(0)
 client = mqtt.Client(transport=config["mqtt"]["transport"])
 
 
-def _on_connect(_, userdata, flags, rc):
+def _on_connect(self, _, userdata, flags, rc):
     client.subscribe("air/display")
     print("Connected with result code " + str(rc))
 
 
-def _on_publish(_, userdata, result):
+def _on_publish(self, _, userdata, result):
     print("data published")
 
 
 def _on_msg(_, userdata, msg):
-    mode = 2  # 0 - disable, 1 - enable, 2 - toggle
-    print("Got msg with payload: ", msg.payload)
-    if msg.payload: # if no payload, then just toggle
-        mode = int(msg.payload)
-    print("Sending ", mode)
-    bus.write_block_data(config["i2c"]["address"], 0, [mode])
+    out_data: list = [2]  # 0 - disable, 1 - enable, 2 - toggle
+    if msg.payload:
+        out_data = [int.from_bytes(msg.payload)]
+    bus.write_block_data(config["i2c"]["address"], 0, out_data)
 
 
 if __name__ == '__main__':
-    client.on_connect = _on_connect
     client.connect(config["mqtt"]['ip'], config["mqtt"]['port'])
     client.on_message = _on_msg
     client.loop_start()

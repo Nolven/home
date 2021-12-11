@@ -13,11 +13,8 @@ import paho.mqtt.client as mqtt
 from scipy.interpolate import interp1d
 
 json_example = {
-  "day": "22",
-  "month": "6",
-  "year": "2021",
-  "hour": "10",
-  "minute": "8",
+  "hour": 10,
+  "minute": 8,
   "duration_minutes": 30,
   "curvature": {
       "0": 0,
@@ -25,6 +22,7 @@ json_example = {
       "15": 40,
       "39": 90
   },
+  "repeat":[1,2,3,4,5,6,7]
   "color": [255, 255, 255]
 }
 
